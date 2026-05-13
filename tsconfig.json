@@ -1,0 +1,14 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["src/*"]
+    },
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "types": ["@cloudflare/workers-types", "@astrojs/cloudflare"]
+  },
+  "include": [".astro/types.d.ts", "**/*", "worker-configuration.d.ts"],
+  "exclude": ["dist", "node_modules"]
+}

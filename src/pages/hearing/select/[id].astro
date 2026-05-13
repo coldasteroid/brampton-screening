@@ -1,0 +1,59 @@
+---
+import Base from '~/layouts/Base.astro';
+import { getHearingForReview, getReview } from '~/lib/db';
+import { offerSlots, formatSlot } from '~/lib/hearings';
+
+const env = Astro.locals.runtime.env;
+const id = Astro.params.id?.toString() ?? '';
+const review = id ? await getReview(env.DB, id) : null;
+
+if (!review || review.decision !== 'hearing_required') {
+  return Astro.redirect('/');
+}
+
+const existing = await getHearingForReview(env.DB, review.id);
+if (existing) {
+  return Astro.redirect(`/hearing/${existing.id}`);
+}
+
+const slots = offerSlots(review.id).map((s) => {
+  const f = formatSlot(s);
+  return { id: s.id, isoStart: s.startsAt.toISOString(), date: f.date, time: f.time };
+});
+---
+
+<Base title={`Book hearing · ${review.ticket_id}`}>
+  <section class="mx-auto max-w-3xl px-6 py-16">
+    <p class="font-mono text-xs uppercase tracking-[0.18em] text-fair-dark">Book your hearing</p>
+    <h1 class="mt-3 font-display text-4xl font-semibold tracking-tight md:text-5xl">
+      Pick a time that works for you.
+    </h1>
+    <p class="mt-4 max-w-prose text-ink-soft">
+      Hearings are heard by an independent Hearing Officer (not the Screening Officer who reviewed your case). They
+      run about 30 minutes. You'll receive a calendar invitation as soon as you confirm.
+    </p>
+
+    <ul class="mt-10 space-y-3">
+      {
+        slots.map((slot) => (
+          <li>
+            <form method="POST" action="/api/hearings/book" class="card flex items-center gap-4 p-5 transition hover:shadow-md">
+              <input type="hidden" name="reviewId" value={review.id} />
+              <input type="hidden" name="startsAt" value={slot.isoStart} />
+              <div class="min-w-0 flex-1">
+                <p class="font-display text-lg font-semibold text-ink">{slot.date}</p>
+                <p class="mt-1 text-sm text-ink-soft">{slot.time} · 30 minutes · Court Services, 5 Ray Lawson Blvd</p>
+              </div>
+              <button type="submit" class="btn-primary text-sm">Book this slot</button>
+            </form>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="mt-10 text-xs text-ink-subtle text-balance">
+      Can't make any of these? Call City Court Services at 905-450-4770. Cancellations are free up to 48 hours before
+      the scheduled time.
+    </p>
+  </section>
+</Base>

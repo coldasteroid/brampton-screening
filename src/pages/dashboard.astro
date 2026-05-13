@@ -1,0 +1,162 @@
+---
+import Base from '~/layouts/Base.astro';
+import WardsMap from '~/components/WardsMap.tsx';
+import PredictiveCollections from '~/components/PredictiveCollections.tsx';
+import { ticketsByWard, listTickets } from '~/lib/db';
+import { getRateBundle } from '~/lib/data/boc';
+import { getBramptonProfile } from '~/lib/data/statcan';
+
+const env = Astro.locals.runtime.env;
+const [byWard, recent, rates, profile] = await Promise.all([
+  ticketsByWard(env.DB),
+  listTickets(env.DB, 50),
+  getRateBundle(),
+  getBramptonProfile(),
+]);
+
+const now = Date.now();
+const atRisk = recent
+  .filter((t) => t.status === 'open')
+  .map((t) => {
+    const daysToDue = (Date.parse(t.due_at) - now) / 86_400_000;
+    const risk = Math.min(1, Math.max(0, 1.2 - daysToDue / 15));
+    return {
+      id: t.id,
+      ward: t.ward,
+      label: t.offence_label,
+      amount: t.amount_cents / 100,
+      daysToDue,
+      risk,
+    };
+  })
+  .sort((a, b) => b.risk - a.risk)
+  .slice(0, 8);
+
+const open = recent.filter((t) => t.status === 'open');
+const openCents = open.reduce((a, t) => a + t.amount_cents, 0);
+const openCount = open.length;
+const avg = openCount ? Math.round(openCents / openCount / 100) : 0;
+
+const kpis = [
+  { label: 'Open notices', value: openCount.toLocaleString('en-CA'), sub: 'In FairPlan demo dataset', accent: false },
+  { label: 'Outstanding balance', value: `$${(openCents / 100).toLocaleString('en-CA')}`, sub: 'Sum of unpaid notices', accent: false },
+  { label: 'Average notice', value: `$${avg.toLocaleString('en-CA')}`, sub: '2026 penalty schedule', accent: false },
+  {
+    label: 'Credit-card APR benchmark',
+    value: `${rates.averageCreditCardAPR.toFixed(2)}%`,
+    sub: `vs FairPlan 0% APR · BoC ${rates.asOf}`,
+    accent: true,
+  },
+];
+
+const profileRows = [
+  { label: 'Population', value: profile.totalPopulation.toLocaleString('en-CA') },
+  { label: 'Median household income', value: `$${profile.medianHouseholdIncomeCAD.toLocaleString('en-CA')}` },
+  { label: 'Below LIM-AT', value: `${profile.lowIncomePctLIM}%` },
+  { label: 'Visible minority', value: `${profile.visibleMinorityPct}%` },
+];
+---
+
+<Base title="Public dashboard · FairPlan" leaflet={true}>
+  <section class="border-b border-line/60">
+    <div class="mx-auto max-w-[1400px] px-6 lg:px-10 py-14 md:py-20">
+      <p class="font-mono text-xs uppercase tracking-[0.18em] text-fair-dark">Public dashboard</p>
+      <h1 class="mt-3 font-display text-4xl font-semibold tracking-tight md:text-5xl text-balance">
+        Real-time view of Brampton APS notices, fairness overlays, and predicted collections.
+      </h1>
+      <p class="mt-4 max-w-2xl text-ink-soft text-balance">
+        Live ward boundaries from Brampton GeoHub, Bank of Canada rates from the Valet API, and Statistics Canada 2021
+        census data. Notice rows are demo data seeded against the Council-approved Jan 2026 penalty schedule.
+      </p>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-[1400px] px-6 lg:px-10 pt-10">
+    <div class="grid gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-4">
+      {
+        kpis.map((k) => (
+          <div class={`bg-surface-raised p-6 ${k.accent ? 'ring-1 ring-fair/30' : ''}`}>
+            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-ink-subtle">{k.label}</p>
+            <p class={`mt-2 font-display text-3xl font-semibold tracking-tight ${k.accent ? 'text-fair-dark' : 'text-ink'}`}>
+              {k.value}
+            </p>
+            {k.sub && <p class="mt-1 text-xs text-ink-subtle">{k.sub}</p>}
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-[1400px] px-6 lg:px-10 py-12">
+    <div class="grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+      <article class="space-y-5">
+        <header class="flex items-end justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-ink-subtle">Geographic overlay</p>
+            <h2 class="mt-1 font-display text-2xl font-semibold tracking-tight">Active notices by ward</h2>
+          </div>
+          <p class="text-xs text-ink-subtle">Live · Brampton GeoHub</p>
+        </header>
+        <WardsMap client:only="react" byWard={byWard} />
+        <p class="text-xs text-ink-subtle text-balance">
+          Tile basemap: CARTO Light · ward polygons: Brampton GeoHub ArcGIS Feature Service. Intensity reflects the number
+          of active notices per ward in the demo dataset.
+        </p>
+      </article>
+
+      <article class="space-y-5">
+        <header>
+          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-ink-subtle">Predictive collections</p>
+          <h2 class="mt-1 font-display text-2xl font-semibold tracking-tight">At-risk cases this week</h2>
+        </header>
+        <div class="card p-6">
+          <PredictiveCollections client:visible cases={atRisk} />
+        </div>
+        <p class="text-xs text-ink-subtle text-balance">
+          Risk score combines time-to-due, amount, and (in production) hardship-band and repeat-offender history. Drives
+          FairPlan's proactive reminder cadence — replaces today's automatic credit-bureau referral.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-[1400px] px-6 lg:px-10 pb-24">
+    <div class="card overflow-hidden">
+      <div class="border-b border-line bg-surface-sunken px-6 py-4 md:flex md:items-end md:justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-ink-subtle">Equity profile</p>
+          <h2 class="mt-1 font-display text-2xl font-semibold tracking-tight">Brampton at a glance</h2>
+        </div>
+        <p class="mt-2 text-xs text-ink-subtle md:mt-0">Statistics Canada Census 2021 · CSD 3521010</p>
+      </div>
+      <div class="grid gap-px bg-line md:grid-cols-4">
+        {
+          profileRows.map((r) => (
+            <div class="bg-surface-raised p-6">
+              <p class="text-xs font-semibold uppercase tracking-[0.14em] text-ink-subtle">{r.label}</p>
+              <p class="mt-2 font-display text-2xl font-semibold tracking-tight text-ink">{r.value}</p>
+            </div>
+          ))
+        }
+      </div>
+      <div class="px-6 py-5">
+        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-ink-subtle">Top languages spoken at home</p>
+        <div class="mt-3 flex flex-wrap gap-2">
+          {
+            profile.topLanguages.map((l) => (
+              <span class="pill border border-line bg-surface-raised text-ink">
+                {l.language} <span class="text-ink-subtle">{l.share.toFixed(1)}%</span>
+              </span>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style is:global>
+  .leaflet-container {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+</style>

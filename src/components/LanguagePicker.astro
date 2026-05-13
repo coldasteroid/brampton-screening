@@ -1,0 +1,35 @@
+---
+import { LANGUAGES, type Lang } from '~/lib/i18n';
+
+interface Props {
+  current: Lang;
+}
+const { current } = Astro.props;
+const codes = Object.keys(LANGUAGES) as Lang[];
+---
+
+<form method="POST" action="/api/lang" class="relative">
+  <label for="lang-picker" class="sr-only">Language</label>
+  <select
+    id="lang-picker"
+    name="lang"
+    onchange="this.form.submit()"
+    class="cursor-pointer appearance-none rounded-lg border border-line bg-surface-raised py-1.5 pl-3 pr-8 text-sm font-medium text-ink hover:border-ink/40 focus:border-fair focus:outline-none"
+  >
+    {
+      codes.map((code) => (
+        <option value={code} selected={code === current}>
+          {LANGUAGES[code].native}
+        </option>
+      ))
+    }
+  </select>
+  <svg
+    class="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-subtle"
+    viewBox="0 0 24 24"
+    fill="none"
+    aria-hidden="true"
+  >
+    <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+  </svg>
+</form>

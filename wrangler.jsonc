@@ -1,0 +1,63 @@
+{
+  // FairPlan — Cloudflare Worker manifest.
+  //
+  // Bindings disabled for local dev (no local emulator → wrangler tries to open a
+  // remote proxy, which needs `wrangler login`). Re-enable each block before
+  // `npm run deploy`:
+  //
+  //   "ai":      { "binding": "AI" }
+  //   "browser": { "binding": "BROWSER" }
+  //
+  //   "durable_objects": {
+  //     "bindings": [{ "name": "CASE", "class_name": "FairPlanCase" }]
+  //   },
+  //   "migrations": [
+  //     { "tag": "v1", "new_sqlite_classes": ["FairPlanCase"] }
+  //   ],
+  //
+  //   "workflows": [
+  //     { "name": "screening-workflow", "binding": "SCREENING_WORKFLOW",
+  //       "class_name": "ScreeningWorkflow" }
+  //   ],
+  //
+  //   "triggers": { "crons": ["*/5 * * * *"] }   // → /api/reminders/run-due
+  //
+  // The agent-skill router falls through to a curated demo response when env.AI
+  // is absent so the local experience is identical end-to-end.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "fairplan",
+  "main": "./dist/_worker.js/index.js",
+  "compatibility_date": "2025-05-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "AI_PROVIDER": "workers-ai",
+    "ENV": "dev"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "fairplan-db",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "CONFIG",
+      "id": "00000000000000000000000000000000"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "EVIDENCE",
+      "bucket_name": "fairplan-evidence"
+    }
+  ]
+}

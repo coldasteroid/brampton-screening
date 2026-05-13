@@ -1,0 +1,58 @@
+---
+import Base from '~/layouts/Base.astro';
+import { getHearing, getReview } from '~/lib/db';
+
+const env = Astro.locals.runtime.env;
+const id = Astro.params.id?.toString() ?? '';
+const hearing = id ? await getHearing(env.DB, id) : null;
+if (!hearing) return Astro.redirect('/');
+
+const review = await getReview(env.DB, hearing.review_id);
+const when = new Date(hearing.scheduled_at);
+const formatted = {
+  date: when.toLocaleDateString('en-CA', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }),
+  time: when.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit' }),
+};
+---
+
+<Base title={`Hearing confirmed · ${review?.ticket_id ?? hearing.id}`}>
+  <section class="mx-auto max-w-2xl px-6 py-16 text-center">
+    <span class="mx-auto grid h-14 w-14 place-items-center rounded-full bg-fair/15 text-fair-dark">
+      <svg viewBox="0 0 24 24" fill="none" class="h-7 w-7" aria-hidden="true">
+        <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2" />
+        <path d="M3 9h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        <path d="m9 14 2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </span>
+    <h1 class="mt-6 font-display text-4xl font-semibold tracking-tight">Hearing confirmed.</h1>
+    <p class="mt-3 text-ink-soft">A Hearing Officer will see you at the time below.</p>
+
+    <div class="card mt-10 p-6 text-left">
+      <p class="text-xs font-semibold uppercase tracking-[0.16em] text-ink-subtle">When</p>
+      <p class="mt-2 font-display text-2xl font-semibold tracking-tight">{formatted.date}</p>
+      <p class="mt-1 text-ink">{formatted.time} · {hearing.duration_minutes} minutes</p>
+      <p class="mt-5 text-xs font-semibold uppercase tracking-[0.16em] text-ink-subtle">Where</p>
+      <p class="mt-2 text-ink">Court Services, 5 Ray Lawson Blvd, Brampton L6Y 5L7</p>
+      {review && (
+        <>
+          <p class="mt-5 text-xs font-semibold uppercase tracking-[0.16em] text-ink-subtle">For notice</p>
+          <p class="mt-2 font-mono text-ink">{review.ticket_id}</p>
+        </>
+      )}
+    </div>
+
+    <div class="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+      <a href={`/api/hearings/${hearing.id}/ics`} class="btn-primary text-sm" download>
+        Add to calendar (.ics)
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 5v12m0 0-5-5m5 5 5-5M5 21h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </a>
+      <a href="/" class="btn-ghost text-sm border border-line">Back to portal</a>
+    </div>
+
+    <p class="mt-10 text-xs text-ink-subtle text-balance">
+      Cancellations are free up to 48 hours before the hearing. Call Court Services at 905-450-4770.
+    </p>
+  </section>
+</Base>

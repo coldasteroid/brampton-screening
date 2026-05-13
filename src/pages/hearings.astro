@@ -1,0 +1,70 @@
+---
+import Base from '~/layouts/Base.astro';
+import { requireRole } from '~/lib/auth';
+import { listUpcomingHearings } from '~/lib/db';
+
+const guard = requireRole(Astro.locals.user, ['officer', 'manager']);
+if (!guard.ok) return Astro.redirect(guard.redirect);
+
+const env = Astro.locals.runtime.env;
+const hearings = await listUpcomingHearings(env.DB);
+
+function fmt(iso: string) {
+  const d = new Date(iso);
+  return {
+    date: d.toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' }),
+    time: d.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit' }),
+  };
+}
+---
+
+<Base title="Hearings · FairPlan">
+  <section class="border-b border-line/60">
+    <div class="mx-auto max-w-[1400px] px-6 lg:px-10 py-12 md:py-16">
+      <p class="font-mono text-xs uppercase tracking-[0.18em] text-fair-dark">Hearings console</p>
+      <h1 class="mt-3 font-display text-4xl font-semibold tracking-tight md:text-5xl text-balance">
+        Upcoming hearings.
+      </h1>
+      <p class="mt-3 max-w-prose text-ink-soft">
+        Bookings made by residents after a Screening Officer referred their case. Heard by an independent Hearing
+        Officer.
+      </p>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-[1400px] px-6 lg:px-10 py-12">
+    {
+      hearings.length === 0 ? (
+        <div class="card p-12 text-center">
+          <p class="font-display text-2xl font-semibold">No upcoming hearings.</p>
+          <p class="mt-2 text-ink-soft">When a review is referred to hearing and a resident books a slot, it
+            appears here.</p>
+        </div>
+      ) : (
+        <ol class="space-y-3">
+          {hearings.map((h) => {
+            const f = fmt(h.scheduled_at);
+            return (
+              <li>
+                <a
+                  href={`/hearing/${h.id}`}
+                  class="card flex flex-col gap-4 p-6 transition hover:shadow-md md:flex-row md:items-center"
+                >
+                  <div class="md:w-40">
+                    <p class="font-display text-lg font-semibold text-ink">{f.date}</p>
+                    <p class="text-sm text-ink-soft">{f.time}</p>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <p class="font-mono text-xs text-ink-subtle">{h.ticket_id}</p>
+                    <p class="mt-0.5 font-medium text-ink">{h.offence_label}</p>
+                  </div>
+                  <span class="pill bg-fair/15 text-fair-dark">{h.duration_minutes} min</span>
+                </a>
+              </li>
+            );
+          })}
+        </ol>
+      )
+    }
+  </section>
+</Base>

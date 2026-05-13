@@ -1,0 +1,19 @@
+# Copy to .dev.vars for local development (never commit .dev.vars).
+
+# Switch the AI router at runtime without redeploying.
+# Values: "workers-ai" (default in dev) | "anthropic"
+AI_PROVIDER=workers-ai
+
+# Cloudflare AI Gateway URL — recommended for production: gives you per-request
+# cost tracking, prompt caching, PII guardrails, and provider fallback in a
+# single configurable endpoint. Anthropic SDK base URL pattern:
+#   https://gateway.ai.cloudflare.com/v1/{ACCOUNT_ID}/{GATEWAY_ID}/anthropic
+AI_GATEWAY_URL=
+
+# Anthropic API key — only needed when AI_PROVIDER=anthropic.
+ANTHROPIC_API_KEY=
+
+# Session-signing secret. Generate a strong random value for production
+# (e.g. `openssl rand -hex 32`). A development default is used if missing,
+# which MUST NOT be deployed to production.
+AUTH_SECRET=
