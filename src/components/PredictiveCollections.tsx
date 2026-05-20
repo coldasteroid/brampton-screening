@@ -1,3 +1,5 @@
+'use client';
+
 interface AtRiskCase {
   id: string;
   ward: number | null;

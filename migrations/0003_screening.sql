@@ -51,6 +51,13 @@ CREATE TABLE IF NOT EXISTS hearings (
 CREATE INDEX IF NOT EXISTS idx_hearings_review ON hearings(review_id);
 CREATE INDEX IF NOT EXISTS idx_hearings_scheduled ON hearings(scheduled_at);
 
+-- Pre-seed demo users so screening_reviews FK on usr_resident_demo holds on first apply.
+-- (The runtime seedDemoUsersIfNeeded in src/lib/auth.ts uses INSERT OR IGNORE, so this stays compatible.)
+INSERT OR IGNORE INTO users (id, email, name, password_hash, role) VALUES
+  ('usr_resident_demo','resident@brampton.demo','Priya Sandhu','pbkdf2$100000$d1fd8b3fa029112dc66729fe25d69a57$afca33815e8cb1f74dfb059efbd823d3b2107ed4355ddcde57bcf4d54c4c71a8','resident'),
+  ('usr_officer_demo','officer@brampton.demo','Devon Wright','pbkdf2$100000$88bf7aa94231842be97294de3ecf778d$b12c1b92c359849b0f5a9f508c82d1cb5503c48d47410212288abc9b5bf3deb9','officer'),
+  ('usr_manager_demo','manager@brampton.demo','Aisha Khan','pbkdf2$100000$99173cf2b47c09fff2e2fe28e4c70828$aad5ede0cf0362868eb02b5456f41e4127a9703564fc6411c4e3cf42c935ac52','manager');
+
 -- Seed: a handful of in-flight screening reviews so the officer queue is populated immediately.
 INSERT OR REPLACE INTO screening_reviews (id, ticket_id, user_id, reasons, narrative, language, status, priority_score, created_at) VALUES
   ('rev_demo_001', 'BRP-2026-001003', 'usr_resident_demo',

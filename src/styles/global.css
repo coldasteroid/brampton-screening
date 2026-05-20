@@ -75,6 +75,10 @@
   }
 }
 
+.leaflet-container {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
 @layer utilities {
   .gradient-trust {
     background: radial-gradient(ellipse at top left, rgba(0, 196, 154, 0.08), transparent 60%),

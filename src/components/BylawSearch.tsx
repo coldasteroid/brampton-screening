@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import type { BylawChunk } from '~/lib/rag/bylaws';
 

@@ -1,5 +1,8 @@
+'use client';
+
 import { useEffect, useRef, useState } from 'react';
 import type { Map as LeafletMap, Layer } from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 interface WardSummary {
   ward: number;
@@ -47,7 +50,7 @@ export default function WardsMap({ byWard }: Props) {
 
       try {
         const res = await fetch('/api/geo/wards');
-        const geo = await res.json();
+        const geo = (await res.json()) as GeoJSON.GeoJsonObject;
         if (cancelled) return;
         const maxN = Math.max(1, ...byWard.map((b) => b.n));
         const byWardMap = new Map(byWard.map((b) => [b.ward, b]));

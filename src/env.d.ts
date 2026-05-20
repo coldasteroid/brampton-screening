@@ -1,25 +1,24 @@
-/// <reference path="../.astro/types.d.ts" />
-/// <reference types="@astrojs/cloudflare" />
+// Cloudflare bindings for FairPlan. @opennextjs/cloudflare reads this shape
+// from the global CloudflareEnv interface — see src/lib/runtime.ts for the
+// runtime accessor (env() / runtime()).
 
-type Runtime = import('@astrojs/cloudflare').Runtime<Env>;
-
-declare namespace App {
-  interface Locals extends Runtime {
-    user: import('~/lib/auth').SessionUser | null;
-    lang: import('~/lib/i18n').Lang;
+declare global {
+  interface Env {
+    ASSETS: Fetcher;
+    DB: D1Database;
+    CONFIG: KVNamespace;
+    EVIDENCE: R2Bucket;
+    AI: Ai;
+    BROWSER: Fetcher;
+    AI_PROVIDER: 'workers-ai' | 'anthropic';
+    ENV: string;
+    ANTHROPIC_API_KEY?: string;
+    AI_GATEWAY_URL?: string;
+    AUTH_SECRET?: string;
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface CloudflareEnv extends Env {}
 }
 
-interface Env {
-  ASSETS: Fetcher;
-  DB: D1Database;
-  CONFIG: KVNamespace;
-  EVIDENCE: R2Bucket;
-  AI: Ai;
-  BROWSER: Fetcher;
-  AI_PROVIDER: 'workers-ai' | 'anthropic';
-  ENV: string;
-  ANTHROPIC_API_KEY?: string;
-  AI_GATEWAY_URL?: string;
-  AUTH_SECRET?: string;
-}
+export {};

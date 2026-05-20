@@ -1,11 +1,18 @@
-import { defineMiddleware } from 'astro:middleware';
-import { readCookie, verifySession } from '~/lib/auth';
-import { readLangFromCookie } from '~/lib/i18n';
+import { NextResponse, type NextRequest } from 'next/server';
 
-export const onRequest = defineMiddleware(async (context, next) => {
-  const env = context.locals.runtime.env;
-  const token = readCookie(context.request);
-  context.locals.user = await verifySession(env, token);
-  context.locals.lang = readLangFromCookie(context.request.headers);
-  return next();
-});
+// FairPlan middleware: surface the current pathname to server components via
+// a request header (Astro's Astro.url.pathname replacement). Auth + lang are
+// resolved per-request in server helpers — see src/lib/auth-server.ts and
+// src/lib/i18n-server.ts — so middleware stays edge-runtime safe and never
+// touches D1.
+export function middleware(req: NextRequest) {
+  const headers = new Headers(req.headers);
+  headers.set('x-pathname', req.nextUrl.pathname);
+  return NextResponse.next({ request: { headers } });
+}
+
+export const config = {
+  // Skip API routes, Next internals, and static assets — they don't need
+  // x-pathname and matching them just wastes budget.
+  matcher: ['/((?!api|_next/static|_next/image|favicon.svg).*)'],
+};

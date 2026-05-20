@@ -5,10 +5,11 @@
   "private": true,
   "description": "FairPlan — AI-native APS Modernization & Personalized Payment Experience for the City of Brampton",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "wrangler dev",
-    "deploy": "astro build && wrangler deploy",
+    "dev": "next dev",
+    "build": "next build",
+    "build:worker": "opennextjs-cloudflare build",
+    "preview": "opennextjs-cloudflare build && wrangler dev",
+    "deploy": "opennextjs-cloudflare build && wrangler deploy",
     "cf-typegen": "wrangler types",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -16,16 +17,13 @@
     "db:apply:remote": "node scripts/apply-migrations.mjs --remote"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^12.5.0",
-    "@astrojs/react": "^4.2.0",
-    "@astrojs/tailwind": "^6.0.2",
-    "astro": "^5.7.0",
+    "@opennextjs/cloudflare": "^1.0.0",
     "clsx": "^2.1.1",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.475.0",
+    "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwindcss": "^3.4.17",
     "zod": "^3.24.1"
   },
   "devDependencies": {
@@ -34,6 +32,10 @@
     "@types/node": "^22.10.5",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "autoprefixer": "^10.4.20",
+    "esbuild": "^0.28.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3",
     "vitest": "^3.0.0",
     "wrangler": "^4.20.0"

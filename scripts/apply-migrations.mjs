@@ -30,7 +30,9 @@ console.log(`Applying ${files.length} migration(s) ${target} → fairplan-db`);
 
 for (const file of files) {
   console.log(`\n— ${file}`);
-  const args = ['wrangler', 'd1', 'execute', 'fairplan-db', target, '--file=' + join(migrationsDir, file)];
+  const filePath = join(migrationsDir, file);
+  const quoted = process.platform === 'win32' ? `"${filePath}"` : filePath;
+  const args = ['wrangler', 'd1', 'execute', 'fairplan-db', target, `--file=${quoted}`];
   const result = spawnSync('npx', args, { stdio: 'inherit', shell: process.platform === 'win32' });
   if (result.status !== 0) {
     console.error(`✖ ${file} failed`);

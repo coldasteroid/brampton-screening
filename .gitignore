@@ -2,6 +2,8 @@ node_modules
 .DS_Store
 dist
 .astro
+.next
+.open-next
 .wrangler
 .dev.vars
 .dev.vars.*

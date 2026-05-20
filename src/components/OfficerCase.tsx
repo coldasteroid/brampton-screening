@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import type { OfficerRecommendation, RecommendedAction } from '~/lib/agents/skills';
 import type { EvidenceItemRow, ScreeningReviewWithTicket } from '~/lib/db';

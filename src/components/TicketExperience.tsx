@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useMemo, useState } from 'react';
 import type { ReminderRow, TicketRow } from '~/lib/db';
 import type { PenaltyCode } from '~/lib/data/penalties';

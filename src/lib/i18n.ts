@@ -209,7 +209,7 @@ const dict = {
 export type TranslationKey = keyof typeof dict;
 
 export function t(lang: Lang, key: TranslationKey, vars?: Record<string, string | number>): string {
-  let s = dict[key][lang] ?? dict[key].en;
+  let s: string = dict[key][lang] ?? dict[key].en;
   if (vars) for (const [k, v] of Object.entries(vars)) s = s.replace(`{${k}}`, String(v));
   return s;
 }
