@@ -45,8 +45,8 @@ export default async function MyNoticesPage() {
   return (
     <>
       <section className="border-b border-line/60">
-        <div className="mx-auto max-w-[1400px] px-6 lg:px-10 py-12 md:py-16">
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-fair-dark">
+        <div className="mx-auto max-w-[1200px] px-6 lg:px-10 py-12 md:py-16">
+          <p className="font-mono text-xs uppercase tracking-[0.22em] text-fair-dark">
             Signed in as {guard.user.name}
           </p>
           <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight md:text-5xl text-balance">
@@ -58,7 +58,7 @@ export default async function MyNoticesPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1400px] px-6 lg:px-10 py-12">
+      <section className="mx-auto max-w-[1200px] px-6 lg:px-10 py-12">
         <header className="mb-6 flex items-end justify-between">
           <h2 className="font-display text-2xl font-semibold tracking-tight">Notices</h2>
           <Link href="/" className="text-sm text-ink-subtle underline-offset-4 hover:underline">
@@ -114,7 +114,7 @@ export default async function MyNoticesPage() {
       </section>
 
       {reviews.length > 0 && (
-        <section className="mx-auto max-w-[1400px] px-6 lg:px-10 pb-24">
+        <section className="mx-auto max-w-[1200px] px-6 lg:px-10 pb-24">
           <header className="mb-6">
             <h2 className="font-display text-2xl font-semibold tracking-tight">
               Screening Reviews you&apos;ve filed

@@ -2,6 +2,44 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'About FairPlan' };
 
+const benefits = [
+  {
+    title: 'Automated screening intake',
+    body: 'Photo, free-text, or speech evidence enters one structured case in seconds — bilingual, with bylaw citations attached.',
+  },
+  {
+    title: 'Screening Officer copilot',
+    body: "A draft recommendation lands in the officer's queue with every relevant facts row, citation, and risk flag pre-populated.",
+  },
+  {
+    title: 'Auto-correspondence',
+    body: "Notices of Affirmation, Decision, and Reminders generated in the resident's language and delivered via email or PDF.",
+  },
+  {
+    title: 'Personalized payment plans',
+    body: '3 / 6 / 12-month plans calibrated to Statistics Canada LIM-AT, 0% APR, with a live credit-card cost comparison.',
+  },
+  {
+    title: 'Predictive collections',
+    body: 'Flags cases at risk of default before the 15-day window closes — intervenes with reminders, not credit-bureau referrals.',
+  },
+  {
+    title: 'Manager dashboards',
+    body: 'Equity overlays, ward-level trend lines, collection forecasts — the operational view Council expects in 2026.',
+  },
+];
+
+const platform: Array<[string, string]> = [
+  ['Workers Assets', 'Next.js + React on the edge'],
+  ['Durable Objects', 'One case agent per ticket'],
+  ['D1', 'Audit log with point-in-time restore'],
+  ['Vectorize', 'RAG over Brampton bylaws (next sprint)'],
+  ['Workers AI', 'Multilingual, on-platform inference'],
+  ['AI Gateway', 'Cost cap, cache, Claude fallback'],
+  ['Browser Rendering', 'Branded PDF agreements'],
+  ['R2', 'Evidence & document store'],
+];
+
 const stack = [
   {
     group: 'Edge & runtime',
@@ -62,7 +100,7 @@ export default function AboutPage() {
   return (
     <>
       <section className="mx-auto max-w-[1200px] px-6 py-16 md:py-24">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-fair-dark">
+        <p className="font-mono text-xs uppercase tracking-[0.22em] text-fair-dark">
           About this proof of concept
         </p>
         <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight md:text-5xl text-balance">
@@ -74,6 +112,51 @@ export default function AboutPage() {
           with the City. Every line item from the official benefits list is addressed by a corresponding flow in
           this build.
         </p>
+      </section>
+
+      <section className="mx-auto max-w-[1200px] px-6 pb-16">
+        <header className="max-w-2xl">
+          <p className="font-mono text-xs uppercase tracking-[0.22em] text-fair-dark">
+            The City&apos;s six published benefits
+          </p>
+          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight">
+            Six benefits. One end-to-end system.
+          </h2>
+        </header>
+        <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-3">
+          {benefits.map((b) => (
+            <article key={b.title} className="bg-surface-raised p-7">
+              <h3 className="font-display text-lg font-semibold tracking-tight text-ink">{b.title}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-ink-soft">{b.body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[1200px] px-6 pb-16">
+        <div className="card overflow-hidden">
+          <div className="grid gap-10 p-10 md:grid-cols-[1fr_1.1fr] md:gap-14 md:p-14">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-[0.22em] text-fair-dark">Why Cloudflare</p>
+              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight">
+                Edge-native, audit-grade, procurement-ready.
+              </h2>
+              <p className="mt-5 leading-relaxed text-ink-soft text-balance">
+                FairPlan runs on Cloudflare Workers, with a Durable Object per ticket holding stateful agent
+                context. Every model call routes through AI Gateway for visible cost tracking, caching, and PII
+                redaction — exactly the governance posture a Canadian municipality needs.
+              </p>
+            </div>
+            <ul className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line text-sm">
+              {platform.map(([k, v]) => (
+                <li key={k} className="bg-surface-raised p-5">
+                  <p className="font-mono text-xs uppercase tracking-[0.14em] text-fair-dark">{k}</p>
+                  <p className="mt-1.5 leading-snug text-ink-soft">{v}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </section>
 
       <section className="mx-auto max-w-[1200px] px-6 pb-16">

@@ -94,12 +94,12 @@ function renderLetter(p: LetterProps): string {
   * { box-sizing: border-box; }
   body { margin: 0; background: #FAFAF7; font-family: 'Inter', system-ui, sans-serif; color: #0B1F3A; line-height: 1.55; }
   .toolbar { position: sticky; top: 0; z-index: 10; background: #0B1F3A; color: #fff; padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-  .toolbar button { background: #00C49A; color: #0B1F3A; border: 0; font: inherit; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; }
+  .toolbar button { background: #005EB8; color: #fff; border: 0; font: inherit; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; }
   main { max-width: 760px; margin: 2.5rem auto; background: #fff; border: 1px solid #E5E7EB; border-radius: 1rem; padding: 3rem; box-shadow: 0 8px 32px -16px rgba(11,31,58,0.15); }
   h1 { font-family: 'Fraunces', Georgia, serif; font-size: 2rem; margin: 0 0 0.25rem; letter-spacing: -0.02em; }
   .sub { color: #475569; font-size: 0.95rem; margin: 0; }
   .badge { display: inline-block; margin-top: 1rem; padding: 0.4rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
-  .badge.cancelled { background: rgba(0,196,154,0.12); color: #009776; }
+  .badge.cancelled { background: rgba(0,94,184,0.12); color: #003F87; }
   .badge.reduced   { background: rgba(245,158,11,0.12); color: #B45309; }
   .badge.upheld    { background: rgba(11,31,58,0.06); color: #0B1F3A; }
   .badge.hearing_required { background: rgba(99,102,241,0.12); color: #4338CA; }
@@ -116,7 +116,7 @@ function renderLetter(p: LetterProps): string {
   .reasoning { margin-top: 2rem; }
   .reasoning h3 { font-family: 'Fraunces', serif; font-size: 1.05rem; margin: 0 0 0.5rem; }
   .reasoning p { white-space: pre-line; color: #1E3252; }
-  .cta { margin-top: 2rem; padding: 1.25rem 1.5rem; background: linear-gradient(135deg, rgba(0,196,154,0.06), rgba(0,196,154,0)); border: 1px solid rgba(0,196,154,0.25); border-radius: 0.75rem; font-size: 0.95rem; color: #0B1F3A; }
+  .cta { margin-top: 2rem; padding: 1.25rem 1.5rem; background: linear-gradient(135deg, rgba(0,94,184,0.06), rgba(0,94,184,0)); border: 1px solid rgba(0,94,184,0.25); border-radius: 0.75rem; font-size: 0.95rem; color: #0B1F3A; }
   .rights { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #E5E7EB; font-size: 0.82rem; color: #475569; }
   .rights h3 { font-family: 'Fraunces', serif; font-size: 1rem; margin: 0 0 0.4rem; color: #0B1F3A; }
   .footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid #E5E7EB; font-size: 0.72rem; color: #64748B; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
@@ -156,7 +156,7 @@ function renderLetter(p: LetterProps): string {
           p.reducedDollars
             ? `<div>
                  <div class="label">Reduced to</div>
-                 <div class="value" style="color:#009776">${escapeHtml(p.reducedDollars)}</div>
+                 <div class="value" style="color:#003F87">${escapeHtml(p.reducedDollars)}</div>
                </div>`
             : ''
         }
@@ -164,7 +164,7 @@ function renderLetter(p: LetterProps): string {
           p.decision === 'cancelled'
             ? `<div>
                  <div class="label">Amount now owed</div>
-                 <div class="value" style="color:#009776">$0.00</div>
+                 <div class="value" style="color:#003F87">$0.00</div>
                </div>`
             : ''
         }

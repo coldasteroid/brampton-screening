@@ -124,11 +124,11 @@ function readWard(f: any): number | null {
 }
 
 function intensityColor(i: number): string {
-  if (i < 0.2) return '#E2F5EE';
-  if (i < 0.4) return '#A6E8D3';
-  if (i < 0.6) return '#5FD3B0';
-  if (i < 0.8) return '#23B188';
-  return '#00795E';
+  if (i < 0.2) return '#E2EEF8';
+  if (i < 0.4) return '#B4D2EE';
+  if (i < 0.6) return '#7FB3E0';
+  if (i < 0.8) return '#3D85C7';
+  return '#003F87';
 }
 
 function escape(s: string): string {

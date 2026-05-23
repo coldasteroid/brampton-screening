@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import TicketLookup from '~/components/TicketLookup';
 import LiveStat from '~/components/LiveStat';
 
@@ -6,249 +7,292 @@ export const metadata: Metadata = {
   title: 'FairPlan — Brampton APS Modernization',
 };
 
-const benefits = [
-  {
-    title: 'Automated screening intake',
-    body: 'Photo, free-text, or speech evidence enters one structured case in seconds — bilingual, with bylaw citations attached.',
-  },
-  {
-    title: 'Screening Officer copilot',
-    body: "A draft recommendation lands in the officer's queue with every relevant facts row, citation, and risk flag pre-populated.",
-  },
-  {
-    title: 'Auto-correspondence',
-    body: "Notices of Affirmation, Decision, and Reminders generated in the resident's language and delivered via email or PDF.",
-  },
-  {
-    title: 'Personalized payment plans',
-    body: '3 / 6 / 12-month plans calibrated to Statistics Canada LIM-AT, 0% APR, with a live credit-card cost comparison.',
-  },
-  {
-    title: 'Predictive collections',
-    body: 'Flags cases at risk of default before the 15-day window closes — intervenes with reminders, not credit-bureau referrals.',
-  },
-  {
-    title: 'Manager dashboards',
-    body: 'Equity overlays, ward-level trend lines, collection forecasts — the operational view Council expects in 2026.',
-  },
-];
-
-const story = [
+const journey = [
   {
     n: '01',
     title: 'Look up your notice',
-    body: 'Enter the notice number from your ticket. We surface every detail — bylaw, due date, location — in your language.',
+    body: 'Enter the notice number from your ticket. Every detail — bylaw, due date, location — surfaces in your language.',
   },
   {
     n: '02',
     title: 'See it explained, calmly',
-    body: 'Our agent reads the bylaw in plain language — no legalese, no judgement. Multilingual translation routes through Workers AI in the next sprint.',
+    body: 'The agent reads the bylaw in plain language. No legalese, no judgement. Multilingual translation built in.',
   },
   {
     n: '03',
     title: 'Choose how to pay',
-    body: 'Pay now, dispute through Screening Review, or activate a hardship-aware plan that fits your income. 0% APR.',
+    body: 'Pay now, request a Screening Review, or activate a hardship-aware payment plan that fits your income. 0% APR.',
+  },
+];
+
+const actions = [
+  {
+    href: '/',
+    eyebrow: 'Resident portal',
+    title: 'Look up a notice',
+    body: 'Find your penalty by notice number and see what you owe — translated, with payment options.',
+    cta: 'Start with my notice number',
+  },
+  {
+    href: '/bylaws',
+    eyebrow: 'Knowledge base',
+    title: 'Understand a bylaw',
+    body: 'Search the bylaws our agent cites — property standards, parking, rental licensing, AMPS procedure.',
+    cta: 'Browse bylaws',
+  },
+  {
+    href: '/my-notices',
+    eyebrow: 'Your account',
+    title: 'My notices & plans',
+    body: 'Track every notice on your account, active payment plans, and Screening Reviews you’ve filed.',
+    cta: 'View my account',
   },
 ];
 
 export default function Home() {
   return (
     <>
-      <section className="relative overflow-hidden">
-        <div className="mx-auto grid max-w-6xl gap-14 px-6 pt-16 pb-20 md:grid-cols-[1.05fr_0.95fr] md:pt-24 md:pb-28 md:gap-16">
-          <div className="relative">
-            <span className="pill border border-line bg-surface-raised text-ink-soft">
-              <span className="h-1.5 w-1.5 rounded-full bg-fair animate-pulse" aria-hidden />
-              City of Brampton AI POC · 2026
-            </span>
-            <h1 className="mt-6 font-display text-5xl font-semibold leading-[1.05] tracking-tight text-balance md:text-6xl">
+      <section className="relative">
+        <div className="mx-auto max-w-[1200px] px-6 pt-20 pb-16 lg:px-10 md:pt-28 md:pb-20">
+          <div className="max-w-3xl">
+            <p className="font-mono text-xs uppercase tracking-[0.22em] text-fair-dark">
+              Brampton resident portal
+            </p>
+            <h1 className="mt-5 font-display text-5xl font-semibold leading-[1.04] tracking-tight text-balance md:text-[64px]">
               A penalty notice <span className="italic text-ink-soft">shouldn&apos;t</span>
               <br className="hidden md:block" />
               push a family into default.
             </h1>
             <p className="mt-6 max-w-prose text-lg leading-relaxed text-ink-soft text-balance">
-              FairPlan modernizes Brampton&apos;s Administrative Penalty System with AI-assisted screening,
-              multilingual explanations, and personalized payment plans calibrated to household hardship —
-              built end-to-end on Cloudflare.
+              Look up your Brampton penalty notice, read what it means in your language, and choose a
+              payment option that fits your household. No login required.
             </p>
 
-            <div className="mt-9">
+            <div className="mt-10">
               <TicketLookup variant="hero" />
             </div>
 
-            <div className="mt-10 flex flex-wrap items-center gap-3 text-xs text-ink-subtle">
+            <div className="mt-8 flex flex-wrap items-center gap-2 text-xs text-ink-subtle">
               <span className="pill bg-surface-sunken">No login required</span>
-              <span className="pill bg-surface-sunken">Multilingual-ready architecture</span>
+              <span className="pill bg-surface-sunken">English · ਪੰਜਾਬੀ · हिन्दी · Français</span>
               <span className="pill bg-surface-sunken">AODA-aware</span>
             </div>
-          </div>
-
-          <aside className="relative">
-            <div
-              className="absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-fair-light/40 via-transparent to-ink-soft/10 blur-2xl"
-              aria-hidden
-            />
-            <div className="card overflow-hidden">
-              <div className="border-b border-line bg-surface-sunken px-6 py-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-subtle">
-                  A real Brampton resident, today
-                </p>
-                <p className="mt-1 font-display text-lg font-semibold text-ink">
-                  $750 — Property Maintenance, Ward 9
-                </p>
-              </div>
-              <div className="space-y-5 px-6 py-6">
-                <div className="grid grid-cols-2 gap-5 text-sm">
-                  <div>
-                    <p className="text-ink-subtle">Issued under</p>
-                    <p className="font-medium text-ink">Property Standards 119-2019</p>
-                  </div>
-                  <div>
-                    <p className="text-ink-subtle">Due in</p>
-                    <p className="font-medium text-ink">15 days · no extensions</p>
-                  </div>
-                  <div>
-                    <p className="text-ink-subtle">If unpaid</p>
-                    <p className="font-medium text-ink">Credit-bureau referral</p>
-                  </div>
-                  <div>
-                    <p className="text-ink-subtle">Payment plans today</p>
-                    <p className="font-medium text-danger">None offered</p>
-                  </div>
-                </div>
-                <div className="rounded-xl border border-fair/30 bg-fair/5 p-5">
-                  <div className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-fair animate-pulse" />
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-fair-dark">
-                      With FairPlan
-                    </p>
-                  </div>
-                  <p className="mt-2 font-display text-2xl font-semibold tracking-tight text-ink">
-                    12 × <span className="tabular-nums">$62.50</span>
-                    <span className="text-ink-subtle">/mo</span>
-                  </p>
-                  <p className="mt-1 text-sm text-ink-soft">
-                    0% APR · LIM-AT calibrated · agreement signed in 4 minutes
-                  </p>
-                  <p className="mt-3 text-xs text-ink-subtle">
-                    Equivalent credit-card cost over 12 months at 21.99% APR:{' '}
-                    <span className="text-danger">+$93.40 in interest</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </aside>
-        </div>
-
-        <div className="border-y border-line/60 bg-surface-raised/70">
-          <div className="mx-auto grid max-w-6xl grid-cols-2 gap-10 px-6 py-10 md:grid-cols-4 md:gap-6">
-            <LiveStat
-              label="Brampton residents"
-              endpoint="/api/stats/population"
-              format="number"
-              fallback="656,480"
-              hint="Statistics Canada 2021"
-            />
-            <LiveStat
-              label="Bank of Canada prime"
-              endpoint="/api/boc/prime"
-              format="percent"
-              fallback="5.45%"
-              hint="Live · Valet API"
-            />
-            <LiveStat
-              label="Languages at home"
-              endpoint="/api/stats/languages"
-              format="number"
-              fallback="160+"
-              hint="StatCan 2021 census"
-            />
-            <LiveStat
-              label="2026 revenue uplift"
-              endpoint="/api/stats/revenue"
-              format="currency"
-              fallback="$1,970,000"
-              hint="Council projection · Jan 1 2026"
-            />
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1400px] px-6 lg:px-10 py-24">
+      <section className="border-y border-line/60 bg-surface-raised/70">
+        <div className="mx-auto grid max-w-[1200px] grid-cols-2 gap-10 px-6 py-10 md:grid-cols-4 md:gap-6 lg:px-10">
+          <LiveStat
+            label="Brampton residents"
+            endpoint="/api/stats/population"
+            format="number"
+            fallback="656,480"
+            hint="Statistics Canada 2021"
+          />
+          <LiveStat
+            label="Languages at home"
+            endpoint="/api/stats/languages"
+            format="number"
+            fallback="160+"
+            hint="StatCan 2021 census"
+          />
+          <LiveStat
+            label="Bank of Canada prime"
+            endpoint="/api/boc/prime"
+            format="percent"
+            fallback="5.45%"
+            hint="Live · Valet API"
+          />
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-fair animate-pulse" aria-hidden />
+              <span className="text-xs font-medium uppercase tracking-[0.14em] text-ink-subtle">
+                FairPlan APR
+              </span>
+            </div>
+            <p className="font-display text-3xl font-semibold leading-none tracking-tight text-ink">
+              0.00%
+            </p>
+            <p className="text-xs text-ink-subtle">Every plan, every income band</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[1200px] px-6 pt-24 pb-8 lg:px-10">
         <header className="max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-fair-dark">
-            How a resident moves through it
+          <p className="font-mono text-xs uppercase tracking-[0.22em] text-fair-dark">
+            How it works for you
           </p>
           <h2 className="mt-3 font-display text-4xl font-semibold tracking-tight">
-            Three steps, three minutes, three languages.
+            Three steps. Three minutes. Your language.
           </h2>
+          <p className="mt-4 text-ink-soft text-balance">
+            FairPlan walks you from a paper notice to a clear decision — without phone trees, paperwork,
+            or guessing what the bylaw means.
+          </p>
         </header>
+
         <ol className="mt-12 grid gap-6 md:grid-cols-3">
-          {story.map((s) => (
-            <li key={s.n} className="card p-7">
-              <p className="font-mono text-xs text-fair-dark">{s.n}</p>
+          {journey.map((s) => (
+            <li key={s.n} className="card relative overflow-hidden p-7">
+              <p className="font-mono text-xs font-semibold tracking-[0.18em] text-fair-dark">
+                STEP {s.n}
+              </p>
               <h3 className="mt-4 font-display text-2xl font-semibold tracking-tight">{s.title}</h3>
-              <p className="mt-3 text-ink-soft leading-relaxed">{s.body}</p>
+              <p className="mt-3 leading-relaxed text-ink-soft">{s.body}</p>
             </li>
           ))}
         </ol>
       </section>
 
-      <section className="mx-auto max-w-[1400px] px-6 lg:px-10 py-16">
-        <header className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-fair-dark">
-              Every line item from the City&apos;s POC brief
-            </p>
-            <h2 className="mt-3 font-display text-4xl font-semibold tracking-tight">
-              Six benefits. One end-to-end system.
-            </h2>
-          </div>
-          <a href="/dashboard" className="btn-ghost self-start text-sm">
-            View the public dashboard →
-          </a>
+      <section className="mx-auto max-w-[1200px] px-6 py-20 lg:px-10">
+        <header className="max-w-2xl">
+          <p className="font-mono text-xs uppercase tracking-[0.22em] text-fair-dark">
+            One resident, one notice
+          </p>
+          <h2 className="mt-3 font-display text-4xl font-semibold tracking-tight">
+            What this feels like, in practice.
+          </h2>
+          <p className="mt-4 text-ink-soft text-balance">
+            A real situation a Brampton household might face today, and the outcome FairPlan can offer.
+          </p>
         </header>
+
+        <div className="mt-10 grid gap-6 md:grid-cols-2 md:gap-8">
+          <article className="card overflow-hidden">
+            <div className="border-b border-line bg-surface-sunken px-7 py-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-subtle">
+                Notice received
+              </p>
+              <p className="mt-1 font-display text-xl font-semibold text-ink">
+                $750 · Property Maintenance · Ward 9
+              </p>
+            </div>
+            <dl className="grid grid-cols-2 gap-x-6 gap-y-5 px-7 py-7 text-sm">
+              <div>
+                <dt className="text-ink-subtle">Issued under</dt>
+                <dd className="mt-1 font-medium text-ink">Property Standards 119-2019</dd>
+              </div>
+              <div>
+                <dt className="text-ink-subtle">Due in</dt>
+                <dd className="mt-1 font-medium text-ink">15 days · no extensions</dd>
+              </div>
+              <div>
+                <dt className="text-ink-subtle">If unpaid</dt>
+                <dd className="mt-1 font-medium text-ink">Credit-bureau referral</dd>
+              </div>
+              <div>
+                <dt className="text-ink-subtle">Plans offered today</dt>
+                <dd className="mt-1 font-medium text-danger">None</dd>
+              </div>
+            </dl>
+          </article>
+
+          <article className="card overflow-hidden ring-1 ring-fair/30">
+            <div className="border-b border-fair/20 bg-fair/5 px-7 py-5">
+              <div className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-fair animate-pulse" aria-hidden />
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-fair-dark">
+                  With FairPlan
+                </p>
+              </div>
+              <p className="mt-1 font-display text-xl font-semibold text-ink">
+                12 × <span className="tabular-nums">$62.50</span>
+                <span className="text-ink-subtle">/mo</span>
+              </p>
+            </div>
+            <div className="space-y-4 px-7 py-7 text-sm">
+              <p className="leading-relaxed text-ink-soft">
+                0% APR. Calibrated to Statistics Canada LIM-AT for your household size. Agreement signed
+                in about four minutes — no call, no office visit.
+              </p>
+              <div className="rounded-xl border border-line bg-surface-sunken px-5 py-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-ink-subtle">
+                  Equivalent on a credit card
+                </p>
+                <p className="mt-1 text-ink">
+                  12 months at 21.99% APR ={' '}
+                  <span className="font-semibold text-danger">+$93.40 interest</span>
+                </p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[1200px] px-6 pb-24 lg:px-10">
+        <header className="max-w-2xl">
+          <p className="font-mono text-xs uppercase tracking-[0.22em] text-fair-dark">
+            What you can do here
+          </p>
+          <h2 className="mt-3 font-display text-4xl font-semibold tracking-tight">
+            Pick the path that fits your situation.
+          </h2>
+        </header>
+
         <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-3">
-          {benefits.map((b) => (
-            <article key={b.title} className="bg-surface-raised p-7">
-              <h3 className="font-display text-lg font-semibold tracking-tight text-ink">{b.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-ink-soft">{b.body}</p>
-            </article>
+          {actions.map((a) => (
+            <Link
+              key={a.title}
+              href={a.href}
+              className="group flex flex-col gap-4 bg-surface-raised p-8 transition hover:bg-surface-sunken"
+            >
+              <p className="font-mono text-xs uppercase tracking-[0.18em] text-fair-dark">
+                {a.eyebrow}
+              </p>
+              <h3 className="font-display text-2xl font-semibold tracking-tight">{a.title}</h3>
+              <p className="text-ink-soft leading-relaxed">{a.body}</p>
+              <p className="mt-auto inline-flex items-center gap-2 text-sm font-medium text-ink group-hover:text-fair-dark">
+                {a.cta}
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
+                  <path
+                    d="M5 12h14m-5-5 5 5-5 5"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </p>
+            </Link>
           ))}
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1400px] px-6 lg:px-10 py-16">
+      <section className="mx-auto max-w-[1200px] px-6 pb-24 lg:px-10">
         <div className="card overflow-hidden">
-          <div className="grid gap-10 p-10 md:grid-cols-[1fr_1.1fr] md:gap-14 md:p-14">
+          <div className="grid items-center gap-8 p-10 md:grid-cols-[1.1fr_auto] md:gap-12 md:p-14">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-fair-dark">Why Cloudflare</p>
-              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight md:text-4xl">
-                Edge-native, audit-grade, and procurement-ready from day one.
+              <p className="font-mono text-xs uppercase tracking-[0.22em] text-fair-dark">
+                Need a person?
+              </p>
+              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight">
+                A Screening Officer can review your case.
               </h2>
-              <p className="mt-5 leading-relaxed text-ink-soft text-balance">
-                FairPlan runs on Cloudflare Workers, with a Durable Object per ticket holding stateful agent
-                context. Every model call routes through AI Gateway for visible cost tracking, caching, and PII
-                redaction — exactly the governance posture a Canadian municipality needs.
+              <p className="mt-4 max-w-prose text-ink-soft text-balance">
+                If the circumstances of your notice don&apos;t fit the standard flow — disability,
+                emergency, or evidence to submit — file a Screening Review. A municipal officer reads
+                every submission and replies in writing.
               </p>
             </div>
-            <ul className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line text-sm">
-              {[
-                ['Workers Assets', 'Next.js + React on the edge'],
-                ['Durable Objects', 'One case agent per ticket'],
-                ['D1', 'Audit log with point-in-time restore'],
-                ['Vectorize', 'RAG over Brampton bylaws (next sprint)'],
-                ['Workers AI', 'Multilingual, on-platform inference'],
-                ['AI Gateway', 'Cost cap, cache, Claude fallback'],
-                ['Browser Rendering', 'Branded PDF agreements'],
-                ['R2', 'Evidence & document store'],
-              ].map(([k, v]) => (
-                <li key={k} className="bg-surface-raised p-5">
-                  <p className="font-mono text-xs uppercase tracking-[0.14em] text-fair-dark">{k}</p>
-                  <p className="mt-1.5 leading-snug text-ink-soft">{v}</p>
-                </li>
-              ))}
-            </ul>
+            <div className="flex flex-col gap-3 md:items-end">
+              <Link href="/" className="btn-primary text-sm">
+                Look up my notice first
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
+                  <path
+                    d="M5 12h14m-5-5 5 5-5 5"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Link>
+              <Link href="/about" className="btn-ghost text-sm border border-line">
+                How FairPlan works
+              </Link>
+            </div>
           </div>
         </div>
       </section>

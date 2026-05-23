@@ -84,14 +84,14 @@ function renderAgreement(p: AgreementProps): string {
     line-height: 1.55;
   }
   .toolbar { position: sticky; top: 0; z-index: 10; background: #0B1F3A; color: #fff; padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-  .toolbar button { background: #00C49A; color: #0B1F3A; border: 0; font: inherit; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; }
+  .toolbar button { background: #005EB8; color: #fff; border: 0; font: inherit; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; }
   main { max-width: 760px; margin: 2.5rem auto; background: #fff; border: 1px solid #E5E7EB; border-radius: 1rem; padding: 3rem; box-shadow: 0 8px 32px -16px rgba(11,31,58,0.15); }
   h1 { font-family: 'Fraunces', Georgia, serif; font-size: 2.25rem; margin: 0 0 0.25rem; letter-spacing: -0.02em; }
   .sub { color: #475569; font-size: 0.95rem; margin: 0; }
   .meta { margin-top: 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem 2rem; }
   .meta dt { font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: #64748B; margin-bottom: 0.25rem; }
   .meta dd { margin: 0; font-weight: 500; }
-  .panel { margin-top: 2.5rem; background: linear-gradient(135deg, rgba(0,196,154,0.08), rgba(0,196,154,0)); border: 1px solid rgba(0,196,154,0.3); border-radius: 0.75rem; padding: 1.75rem; }
+  .panel { margin-top: 2.5rem; background: linear-gradient(135deg, rgba(0,94,184,0.08), rgba(0,94,184,0)); border: 1px solid rgba(0,94,184,0.3); border-radius: 0.75rem; padding: 1.75rem; }
   .panel h2 { font-family: 'Fraunces', serif; font-size: 1.5rem; margin: 0 0 0.5rem; }
   .terms { margin-top: 2.5rem; }
   .terms h3 { font-family: 'Fraunces', serif; font-size: 1.15rem; margin: 1.5rem 0 0.5rem; }

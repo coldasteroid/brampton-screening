@@ -21,8 +21,8 @@ export default function BylawsPage() {
   return (
     <>
       <section className="border-b border-line/60">
-        <div className="mx-auto max-w-[1400px] px-6 lg:px-10 py-12 md:py-16">
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-fair-dark">Knowledge base</p>
+        <div className="mx-auto max-w-[1200px] px-6 lg:px-10 py-12 md:py-16">
+          <p className="font-mono text-xs uppercase tracking-[0.22em] text-fair-dark">Knowledge base</p>
           <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight md:text-5xl text-balance">
             The bylaws our agent reads.
           </h1>
@@ -34,8 +34,8 @@ export default function BylawsPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1400px] px-6 lg:px-10 py-12">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-fair-dark">Try a query</p>
+      <section className="mx-auto max-w-[1200px] px-6 lg:px-10 py-12">
+        <p className="font-mono text-xs uppercase tracking-[0.22em] text-fair-dark">Try a query</p>
         <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">Search the corpus</h2>
         <p className="mt-2 max-w-prose text-sm text-ink-soft">
           Free-text retrieval against the indexed bylaws. Production replaces this with Workers AI{' '}
@@ -47,8 +47,8 @@ export default function BylawsPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1400px] px-6 lg:px-10 pb-24">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-fair-dark">Indexed corpus</p>
+      <section className="mx-auto max-w-[1200px] px-6 lg:px-10 pb-24">
+        <p className="font-mono text-xs uppercase tracking-[0.22em] text-fair-dark">Indexed corpus</p>
         <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">
           {BYLAW_CORPUS.length} sections, {Object.keys(byCategory).length} categories
         </h2>

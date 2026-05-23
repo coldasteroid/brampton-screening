@@ -27,7 +27,7 @@ export default async function PlanPage({
   await getCurrentUser();
 
   return (
-    <section className="mx-auto max-w-[1400px] px-6 lg:px-10 pt-14 pb-24 md:pt-20">
+    <section className="mx-auto max-w-[1200px] px-6 lg:px-10 pt-14 pb-24 md:pt-20">
       <nav className="mb-8 text-sm">
         <Link href={`/ticket/${ticket.id}`} className="text-ink-subtle hover:text-ink">
           ← Back to notice {ticket.id}

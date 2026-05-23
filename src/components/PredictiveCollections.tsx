@@ -57,7 +57,7 @@ function RiskBar({ risk }: { risk: number }) {
               ? 'linear-gradient(to right, #f87171, #dc2626)'
               : risk > 0.6
                 ? 'linear-gradient(to right, #fbbf24, #f59e0b)'
-                : 'linear-gradient(to right, #5FD3B0, #009776)',
+                : 'linear-gradient(to right, #4F8FD1, #003F87)',
         }}
       />
     </div>

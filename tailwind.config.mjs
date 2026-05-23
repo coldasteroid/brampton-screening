@@ -11,9 +11,9 @@ export default {
           subtle: '#475569',
         },
         fair: {
-          DEFAULT: '#00C49A', // teal — action, fairness, forward motion
-          dark: '#009776',
-          light: '#7FF0D6',
+          DEFAULT: '#005EB8', // City of Brampton civic blue — action, fairness, forward motion
+          dark: '#003F87',
+          light: '#A8C7E8',
         },
         warn: '#F59E0B',
         danger: '#DC2626',
@@ -35,7 +35,7 @@ export default {
       },
       boxShadow: {
         card: '0 1px 2px rgba(11,31,58,0.06), 0 8px 24px -8px rgba(11,31,58,0.10)',
-        ring: '0 0 0 4px rgba(0,196,154,0.18)',
+        ring: '0 0 0 4px rgba(0,94,184,0.18)',
       },
       maxWidth: {
         prose: '68ch',

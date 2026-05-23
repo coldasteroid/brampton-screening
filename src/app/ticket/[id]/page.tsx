@@ -37,7 +37,7 @@ export default async function TicketPage({ params }: { params: Promise<{ id: str
   const reminders = await listRemindersForTicket(e.DB, ticket.id);
 
   return (
-    <section className="mx-auto max-w-[1400px] px-6 lg:px-10 pt-14 pb-24 md:pt-20">
+    <section className="mx-auto max-w-[1200px] px-6 lg:px-10 pt-14 pb-24 md:pt-20">
       <nav className="mb-8 text-sm">
         <Link href="/" className="text-ink-subtle hover:text-ink">
           ← Back to resident portal

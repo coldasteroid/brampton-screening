@@ -5,7 +5,7 @@
 @layer base {
   :root {
     color-scheme: light;
-    --focus-ring: 0 0 0 4px rgba(0, 196, 154, 0.35);
+    --focus-ring: 0 0 0 4px rgba(0, 94, 184, 0.35);
   }
 
   html {
@@ -53,7 +53,7 @@
     @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-medium transition-all duration-150 select-none;
   }
   .btn-primary {
-    @apply btn bg-fair text-ink hover:bg-fair-dark hover:text-white shadow-card;
+    @apply btn bg-fair text-white hover:bg-fair-dark shadow-card;
   }
   .btn-ghost {
     @apply btn bg-transparent text-ink hover:bg-surface-sunken;
@@ -73,6 +73,9 @@
   .skip-link {
     @apply absolute left-2 top-2 -translate-y-32 focus:translate-y-0 transition-transform bg-ink text-white px-4 py-2 rounded-lg z-50;
   }
+  .eyebrow {
+    @apply font-mono text-xs font-semibold uppercase tracking-[0.22em] text-fair-dark;
+  }
 }
 
 .leaflet-container {
@@ -81,7 +84,7 @@
 
 @layer utilities {
   .gradient-trust {
-    background: radial-gradient(ellipse at top left, rgba(0, 196, 154, 0.08), transparent 60%),
+    background: radial-gradient(ellipse at top left, rgba(0, 94, 184, 0.08), transparent 60%),
       radial-gradient(ellipse at bottom right, rgba(11, 31, 58, 0.05), transparent 50%);
   }
   .text-balance {
