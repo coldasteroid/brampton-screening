@@ -68,6 +68,23 @@ export default async function ManagerPage() {
             Trends across the screening queue, decision mix, geographic load, and equity overlays — drawn from D1
             and Statistics Canada at request time.
           </p>
+          <a
+            href="/api/manager/report"
+            target="_blank"
+            rel="noopener"
+            className="btn-primary mt-6 inline-flex text-sm"
+          >
+            Export report
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </a>
         </div>
       </section>
 

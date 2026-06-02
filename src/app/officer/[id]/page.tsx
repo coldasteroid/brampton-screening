@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import OfficerCase from '~/components/OfficerCase';
 import { requireRole } from '~/lib/auth';
 import { getReview, getTicket, listEvidence } from '~/lib/db';
-import type { OfficerRecommendation } from '~/lib/agents/skills';
+import { compileEvidenceSummary, type OfficerRecommendation } from '~/lib/agents/skills';
 import { getCurrentUser } from '~/lib/auth-server';
 import { env } from '~/lib/runtime';
 
@@ -47,7 +47,12 @@ export default async function OfficerCasePage({
         </Link>
       </nav>
       {ticket && (
-        <OfficerCase review={review} initialRecommendation={recommendation} evidence={evidence} />
+        <OfficerCase
+          review={review}
+          initialRecommendation={recommendation}
+          evidence={evidence}
+          evidenceSummary={compileEvidenceSummary(evidence)}
+        />
       )}
     </section>
   );

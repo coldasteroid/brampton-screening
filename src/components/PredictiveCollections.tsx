@@ -7,7 +7,15 @@ interface AtRiskCase {
   amount: number;
   daysToDue: number;
   risk: number;
+  strategy?: { strategy: string; label: string; rationale: string };
 }
+
+const STRATEGY_TONE: Record<string, string> = {
+  gentle_reminder: 'bg-fair/10 text-fair-dark',
+  offer_plan: 'bg-indigo-100 text-indigo-700',
+  personal_outreach: 'bg-warn/15 text-amber-700',
+  escalate: 'bg-danger/10 text-danger',
+};
 
 interface Props {
   cases: AtRiskCase[];
@@ -30,6 +38,16 @@ export default function PredictiveCollections({ cases }: Props) {
               <p className="mt-0.5 font-mono text-[11px] text-ink-subtle">
                 {c.id} · ${c.amount.toLocaleString('en-CA')}
               </p>
+              {c.strategy && (
+                <span
+                  title={c.strategy.rationale}
+                  className={`mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] ${
+                    STRATEGY_TONE[c.strategy.strategy] ?? 'bg-surface-sunken text-ink-soft'
+                  }`}
+                >
+                  {c.strategy.label}
+                </span>
+              )}
             </div>
             <div className="hidden text-right md:block">
               <p className="text-xs text-ink-subtle">

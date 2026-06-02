@@ -8,6 +8,7 @@ interface Props {
   review: ScreeningReviewWithTicket;
   initialRecommendation: OfficerRecommendation | null;
   evidence: EvidenceItemRow[];
+  evidenceSummary: string;
 }
 
 const ACTION_LABEL: Record<RecommendedAction, string> = {
@@ -17,7 +18,7 @@ const ACTION_LABEL: Record<RecommendedAction, string> = {
   hearing: 'Refer to hearing',
 };
 
-export default function OfficerCase({ review, initialRecommendation, evidence }: Props) {
+export default function OfficerCase({ review, initialRecommendation, evidence, evidenceSummary }: Props) {
   const [rec, setRec] = useState<OfficerRecommendation | null>(initialRecommendation);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -253,6 +254,11 @@ export default function OfficerCase({ review, initialRecommendation, evidence }:
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-subtle">
             Evidence ({evidence.length})
           </p>
+          {evidenceSummary && (
+            <p className="mt-2 rounded-lg bg-surface-sunken px-3 py-2 text-xs leading-relaxed text-ink-soft">
+              <span className="font-semibold text-ink">Compiled:</span> {evidenceSummary}
+            </p>
+          )}
           {evidence.length === 0 ? (
             <p className="mt-3 text-sm text-ink-subtle">No files uploaded with this review.</p>
           ) : (

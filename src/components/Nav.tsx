@@ -78,16 +78,9 @@ export default function Nav({ user, lang }: Props) {
           >
             Bylaws
           </Link>
-          <Link
-            href="/about"
-            aria-current={isCurrent('/about') ? 'page' : undefined}
-            className="whitespace-nowrap hover:text-ink transition-colors"
-          >
-            {t(lang, 'nav.about')}
-          </Link>
           {(user?.role === 'officer' || user?.role === 'manager') && (
             <span
-              className="ml-1 inline-flex items-center gap-4 border-l border-line pl-4 text-fair-dark"
+              className="inline-flex items-center gap-4 border-l border-line pl-4 text-fair-dark"
               aria-label="Staff tools"
             >
               <Link
@@ -124,6 +117,18 @@ export default function Nav({ user, lang }: Props) {
               )}
             </span>
           )}
+          <Link
+            href="/about"
+            aria-current={isCurrent('/about') ? 'page' : undefined}
+            className={
+              'whitespace-nowrap hover:text-ink transition-colors' +
+              (user?.role === 'officer' || user?.role === 'manager'
+                ? ' border-l border-line pl-4'
+                : '')
+            }
+          >
+            {t(lang, 'nav.about')}
+          </Link>
         </nav>
         <div className="flex items-center gap-2 shrink-0">
           <LanguagePicker current={lang} />

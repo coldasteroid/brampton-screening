@@ -86,6 +86,24 @@ Et après : examinez l'entente, signez-la électroniquement, et votre premier pa
 Qué sigue: revise el acuerdo, fírmelo electrónicamente, su primer pago estará programado en aproximadamente dos semanas. Si algo cambia, contacte a los Servicios Judiciales al 905-450-4770.`,
 };
 
+const ASSISTANT: Record<Lang, string> = {
+  en: `Happy to help. Under Brampton's Administrative Penalty System you have three paths: pay the notice, request a Screening Review within 15 days of the date on the notice (free, and a human Screening Officer decides), or set up a 0%-interest FairPlan instalment that fits your household. Tell me your notice number and what's worrying you, and I'll point you to the right next step.`,
+  pa: `ਮੈਂ ਮਦਦ ਲਈ ਹਾਜ਼ਰ ਹਾਂ। ਬ੍ਰੈਮਪਟਨ ਦੇ APS ਅਨੁਸਾਰ ਤੁਹਾਡੇ ਕੋਲ ਤਿੰਨ ਰਾਹ ਹਨ: ਨੋਟਿਸ ਦਾ ਭੁਗਤਾਨ ਕਰੋ, 15 ਦਿਨਾਂ ਅੰਦਰ ਸਕ੍ਰੀਨਿੰਗ ਸਮੀਖਿਆ ਲਈ ਅਰਜ਼ੀ ਦਿਓ (ਮੁਫ਼ਤ, ਫੈਸਲਾ ਮਨੁੱਖੀ ਅਧਿਕਾਰੀ ਕਰਦਾ ਹੈ), ਜਾਂ 0% ਵਿਆਜ ਵਾਲੀ FairPlan ਕਿਸ਼ਤ ਯੋਜਨਾ ਬਣਾਓ। ਆਪਣਾ ਨੋਟਿਸ ਨੰਬਰ ਦੱਸੋ, ਮੈਂ ਅਗਲਾ ਕਦਮ ਦੱਸਾਂਗਾ।`,
+  hi: `मैं मदद के लिए हूँ। ब्रैम्पटन के APS के तहत आपके पास तीन रास्ते हैं: नोटिस का भुगतान करें, 15 दिनों के भीतर स्क्रीनिंग समीक्षा के लिए आवेदन करें (निःशुल्क, निर्णय मानव अधिकारी करते हैं), या 0% ब्याज वाली FairPlan किस्त योजना बनाएं। अपना नोटिस नंबर बताएं, मैं अगला कदम बताऊँगा।`,
+  ur: `میں مدد کے لیے حاضر ہوں۔ برمپٹن کے APS کے تحت آپ کے پاس تین راستے ہیں: نوٹس ادا کریں، 15 دن کے اندر اسکریننگ ریویو کی درخواست دیں (مفت، فیصلہ ایک انسان کرتا ہے)، یا 0% سود والا FairPlan قسط منصوبہ بنائیں۔ اپنا نوٹس نمبر بتائیں، میں اگلا قدم بتاؤں گا۔`,
+  fr: `Avec plaisir. Sous le système de pénalités administratives de Brampton, vous avez trois options : payer l'avis, demander une révision préalable dans les 15 jours (gratuit, et un agent humain décide), ou établir un plan de versements FairPlan à 0 % d'intérêt adapté à votre ménage. Donnez-moi votre numéro d'avis et ce qui vous préoccupe, et je vous indiquerai la prochaine étape.`,
+  es: `Con gusto. Bajo el Sistema de Penalidades Administrativas de Brampton tiene tres opciones: pagar el aviso, solicitar una Revisión de Selección dentro de 15 días (gratis, y un oficial humano decide), o establecer un plan de cuotas FairPlan al 0% de interés. Dígame su número de aviso y qué le preocupa, y le indicaré el siguiente paso.`,
+};
+
+const REMINDER: Record<Lang, string> = {
+  en: `A quick reminder about your City of Brampton notice — the balance is coming due soon. You don't have to pay it all at once: a FairPlan instalment plan spreads it over months at 0% interest. We're here if you need a hand.`,
+  pa: `ਤੁਹਾਡੇ ਬ੍ਰੈਮਪਟਨ ਨੋਟਿਸ ਬਾਰੇ ਯਾਦ-ਦਹਾਨੀ — ਬਕਾਇਆ ਜਲਦੀ ਦੇਣਾ ਹੈ। ਸਾਰਾ ਇੱਕੋ ਵਾਰ ਦੇਣ ਦੀ ਲੋੜ ਨਹੀਂ: FairPlan ਕਿਸ਼ਤ ਯੋਜਨਾ ਇਸਨੂੰ 0% ਵਿਆਜ 'ਤੇ ਮਹੀਨਿਆਂ ਵਿੱਚ ਵੰਡ ਦਿੰਦੀ ਹੈ। ਮਦਦ ਲਈ ਅਸੀਂ ਹਾਜ਼ਰ ਹਾਂ।`,
+  hi: `आपके ब्रैम्पटन नोटिस के बारे में एक याद-दिलावन — शेष राशि जल्द देय है। सब एक साथ देना ज़रूरी नहीं: FairPlan किस्त योजना इसे 0% ब्याज पर महीनों में बाँट देती है। मदद के लिए हम मौजूद हैं।`,
+  ur: `آپ کے برمپٹن نوٹس کے بارے میں ایک یاد دہانی — رقم جلد واجب الادا ہے۔ سب کچھ ایک ساتھ دینا ضروری نہیں: FairPlan قسط منصوبہ اسے 0% سود پر مہینوں میں تقسیم کر دیتا ہے۔ مدد کے لیے ہم موجود ہیں۔`,
+  fr: `Un petit rappel concernant votre avis de la Ville de Brampton — le solde arrive bientôt à échéance. Vous n'avez pas à tout payer d'un coup : un plan de versements FairPlan le répartit sur plusieurs mois à 0 % d'intérêt. Nous sommes là si vous avez besoin d'aide.`,
+  es: `Un recordatorio rápido sobre su aviso de la Ciudad de Brampton — el saldo vence pronto. No tiene que pagarlo todo de una vez: un plan de cuotas FairPlan lo distribuye en meses al 0% de interés. Estamos aquí si necesita ayuda.`,
+};
+
 function detectLanguage(userContent: string): Lang {
   const m = userContent.match(/in (English|Punjabi|Hindi|Urdu|French|Spanish)/i);
   if (!m) return 'en';
@@ -103,5 +121,7 @@ function detectLanguage(userContent: string): Lang {
 export function sampleResponse(tag: string, userContent: string): string {
   const lang = detectLanguage(userContent);
   if (tag === 'explain_plan') return EXPLAIN_PLAN[lang];
+  if (tag === 'assistant') return ASSISTANT[lang];
+  if (tag === 'reminder') return REMINDER[lang];
   return EXPLAIN[lang];
 }

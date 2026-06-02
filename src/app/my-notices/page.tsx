@@ -2,11 +2,27 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { requireRole } from '~/lib/auth';
-import { listReviewsForUser, listTicketsForUser } from '~/lib/db';
+import {
+  getPlan,
+  getTicket,
+  listRemindersForUser,
+  listReviewsForUser,
+  listTicketsForUser,
+} from '~/lib/db';
+import { composeReminder } from '~/lib/agents/skills';
 import { getCurrentUser } from '~/lib/auth-server';
+import { getLang } from '~/lib/i18n-server';
 import { env } from '~/lib/runtime';
 
 export const metadata: Metadata = { title: 'My notices · FairPlan' };
+
+const REMINDER_LABEL: Record<string, string> = {
+  notice_due_5d: 'Notice due in 5 days',
+  notice_due_1d: 'Notice due tomorrow',
+  notice_due_0d: 'Notice due today',
+  plan_instalment_3d: 'Instalment due in 3 days',
+  plan_instalment_0d: 'Instalment due today',
+};
 
 function statusBadge(t: {
   decision: string | null;
@@ -37,10 +53,35 @@ export default async function MyNoticesPage() {
   if (!guard.ok) redirect(guard.redirect);
 
   const e = env();
-  const [tickets, reviews] = await Promise.all([
+  const [tickets, reviews, reminders, lang] = await Promise.all([
     listTicketsForUser(e.DB, guard.user.id),
     listReviewsForUser(e.DB, guard.user.id),
+    listRemindersForUser(e.DB, guard.user.id),
+    getLang(),
   ]);
+
+  // Compose one in-language preview of the soonest upcoming reminder, so the
+  // resident can see exactly what a personalized, AI-written reminder looks like.
+  const nextReminder = reminders.find((r) => r.status === 'pending') ?? null;
+  let reminderPreview: string | null = null;
+  if (nextReminder) {
+    try {
+      const ticket = await getTicket(e.DB, nextReminder.ticket_id);
+      if (ticket) {
+        let plan = null as null | { months: number; monthlyDollars: number; instalmentNumber: number };
+        if (nextReminder.plan_id) {
+          const planRow = await getPlan(e.DB, nextReminder.plan_id);
+          if (planRow) {
+            plan = { months: planRow.months, monthlyDollars: planRow.monthly_cents / 100, instalmentNumber: 1 };
+          }
+        }
+        const composed = await composeReminder(e, { ticket, kind: nextReminder.kind, language: lang, plan });
+        reminderPreview = composed.text;
+      }
+    } catch {
+      reminderPreview = null;
+    }
+  }
 
   return (
     <>
@@ -156,6 +197,48 @@ export default async function MyNoticesPage() {
                 </li>
               );
             })}
+          </ol>
+        </section>
+      )}
+
+      {reminders.length > 0 && (
+        <section className="mx-auto max-w-[1200px] px-6 lg:px-10 pb-24">
+          <header className="mb-6">
+            <h2 className="font-display text-2xl font-semibold tracking-tight">Payment reminders</h2>
+            <p className="mt-2 max-w-prose text-sm text-ink-soft">
+              Friendly, non-punitive reminders — written in your language and sent before each due date. No
+              late-fee threats, no credit-bureau referral.
+            </p>
+          </header>
+
+          {reminderPreview && (
+            <div className="card mb-5 p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-fair-dark">
+                Preview · your next reminder
+              </p>
+              <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-ink">{reminderPreview}</p>
+            </div>
+          )}
+
+          <ol className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface-raised">
+            {reminders.map((r) => (
+              <li key={r.id} className="flex items-center justify-between gap-4 px-6 py-4">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-ink">{REMINDER_LABEL[r.kind] ?? r.kind}</p>
+                  <p className="mt-0.5 font-mono text-xs text-ink-subtle">{r.ticket_id}</p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className="text-sm text-ink-soft">{formatDate(r.scheduled_at)}</p>
+                  <span
+                    className={`pill mt-1 ${
+                      r.status === 'sent' ? 'bg-fair/15 text-fair-dark' : 'bg-surface-sunken text-ink-soft'
+                    }`}
+                  >
+                    {r.status === 'sent' ? 'Sent' : 'Scheduled'}
+                  </span>
+                </div>
+              </li>
+            ))}
           </ol>
         </section>
       )}

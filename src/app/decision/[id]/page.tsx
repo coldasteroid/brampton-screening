@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getReview } from '~/lib/db';
+import { getCurrentUser } from '~/lib/auth-server';
+import type { OfficerRecommendation } from '~/lib/agents/skills';
 import { env } from '~/lib/runtime';
 
 export async function generateMetadata({
@@ -36,11 +38,21 @@ const DECISION_LABEL: Record<string, { tone: string; title: string; cta: string 
   },
 };
 
+const ACTION_LABEL: Record<string, string> = {
+  cancel: 'Cancel the notice',
+  reduce: 'Reduce the amount',
+  uphold: 'Uphold as issued',
+  hearing: 'Refer to hearing',
+};
+
 export default async function DecisionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const review = id ? await getReview(env().DB, id) : null;
 
   if (!review || review.status !== 'decided') redirect('/');
+
+  const user = await getCurrentUser();
+  const isStaff = user?.role === 'officer' || user?.role === 'manager';
 
   const decision = review.decision!;
   const meta = DECISION_LABEL[decision] ?? DECISION_LABEL.upheld;
@@ -55,6 +67,153 @@ export default async function DecisionPage({ params }: { params: Promise<{ id: s
           currency: 'CAD',
         })
       : null;
+
+  if (isStaff) {
+    let aiRec: OfficerRecommendation | null = null;
+    if (review.ai_recommendation) {
+      try {
+        aiRec = JSON.parse(review.ai_recommendation) as OfficerRecommendation;
+      } catch {
+        aiRec = null;
+      }
+    }
+    const officerDecisionToAction: Record<string, string> = {
+      cancelled: 'cancel',
+      reduced: 'reduce',
+      upheld: 'uphold',
+      hearing_required: 'hearing',
+    };
+    const decidedAction = officerDecisionToAction[decision];
+    const aligned = aiRec ? aiRec.recommended_action === decidedAction : null;
+
+    return (
+      <section className="mx-auto max-w-3xl px-6 pt-12 pb-24 md:pt-16">
+        <Link href="/officer" className="text-sm text-ink-subtle hover:text-ink">
+          ← Back to queue
+        </Link>
+
+        <p className="mt-6 font-mono text-xs uppercase tracking-[0.18em] text-fair-dark">
+          Decision recorded
+        </p>
+        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight md:text-5xl">
+          {meta.title}
+        </h1>
+        <p className="mt-3 text-ink-soft">
+          The Notice of Decision is now available to the resident. They have 15 days to request a Hearing
+          Officer review.
+        </p>
+
+        <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-5 rounded-2xl border border-line bg-surface-raised p-6">
+          <div>
+            <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-subtle">Notice</dt>
+            <dd className="mt-1 font-mono text-ink">{review.ticket_id}</dd>
+          </div>
+          <div>
+            <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-subtle">Offence</dt>
+            <dd className="mt-1 text-ink">{review.offence_label}</dd>
+          </div>
+          <div>
+            <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-subtle">Original amount</dt>
+            <dd className="mt-1 text-ink">{originalDollars}</dd>
+          </div>
+          <div>
+            <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-subtle">
+              {decision === 'cancelled'
+                ? 'Final amount'
+                : decision === 'reduced'
+                  ? 'Reduced to'
+                  : decision === 'hearing_required'
+                    ? 'Pending hearing'
+                    : 'Amount upheld'}
+            </dt>
+            <dd className="mt-1 font-display text-xl font-semibold text-fair-dark">
+              {decision === 'cancelled'
+                ? '$0.00'
+                : decision === 'hearing_required'
+                  ? originalDollars
+                  : (reducedDollars ?? originalDollars)}
+            </dd>
+          </div>
+          <div className="col-span-2 border-t border-line pt-4">
+            <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-subtle">Review</dt>
+            <dd className="mt-1 font-mono text-xs text-ink-soft">{review.id}</dd>
+          </div>
+        </dl>
+
+        <section className="mt-10">
+          <h2 className="font-display text-2xl font-semibold tracking-tight">Your reasoning</h2>
+          <p className="mt-4 whitespace-pre-line text-ink-soft leading-relaxed">
+            {review.decision_reasoning || '(no reasoning recorded)'}
+          </p>
+        </section>
+
+        {aiRec && (
+          <section className="mt-8 rounded-2xl border border-line bg-surface-sunken p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-subtle">
+                AI draft · advisory
+              </p>
+              <span
+                className={
+                  'pill ' +
+                  (aligned ? 'bg-fair/15 text-fair-dark' : 'bg-warn/15 text-amber-700')
+                }
+              >
+                {aligned ? 'Officer aligned with AI' : 'Officer overrode AI'}
+              </span>
+            </div>
+            <p className="mt-3 text-sm text-ink">
+              <span className="font-medium">AI recommended:</span>{' '}
+              {ACTION_LABEL[aiRec.recommended_action] ?? aiRec.recommended_action}
+              {aiRec.confidence && (
+                <span className="ml-2 text-xs text-ink-subtle">
+                  · confidence: {aiRec.confidence}
+                </span>
+              )}
+            </p>
+            <p className="mt-2 text-sm text-ink-soft leading-relaxed">{aiRec.reasoning}</p>
+            {aiRec.cited_bylaws.length > 0 && (
+              <p className="mt-3 text-xs text-ink-subtle">
+                Cited: {aiRec.cited_bylaws.join(' · ')}
+              </p>
+            )}
+          </section>
+        )}
+
+        <div className="mt-12 flex flex-wrap items-center gap-3">
+          <Link href="/officer" className="btn-primary text-sm">
+            Back to queue
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M5 12h14m-5-5 5 5-5 5"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </Link>
+          <a
+            href={`/api/decision-letter/${review.id}`}
+            target="_blank"
+            rel="noopener"
+            className="btn-ghost text-sm border border-line"
+          >
+            Preview resident&apos;s letter
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M14 3h7v7M10 14 21 3M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </a>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="mx-auto max-w-3xl px-6 pt-14 pb-24 md:pt-20">

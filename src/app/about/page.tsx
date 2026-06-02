@@ -1,247 +1,138 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = { title: 'About FairPlan' };
 
-const benefits = [
+const canDo = [
   {
-    title: 'Automated screening intake',
-    body: 'Photo, free-text, or speech evidence enters one structured case in seconds — bilingual, with bylaw citations attached.',
+    title: 'Look up your notice',
+    body: 'Type the notice number from your ticket and see every detail — the bylaw, the amount, where it was issued, when it’s due.',
   },
   {
-    title: 'Screening Officer copilot',
-    body: "A draft recommendation lands in the officer's queue with every relevant facts row, citation, and risk flag pre-populated.",
+    title: 'Read it in your language',
+    body: 'Plain-language explanations in English, Punjabi, Hindi, or French. No legalese, no judgement.',
   },
   {
-    title: 'Auto-correspondence',
-    body: "Notices of Affirmation, Decision, and Reminders generated in the resident's language and delivered via email or PDF.",
+    title: 'Set up a payment plan',
+    body: '3, 6, or 12 monthly instalments calibrated to your household income. 0% interest. No credit check.',
   },
   {
-    title: 'Personalized payment plans',
-    body: '3 / 6 / 12-month plans calibrated to Statistics Canada LIM-AT, 0% APR, with a live credit-card cost comparison.',
-  },
-  {
-    title: 'Predictive collections',
-    body: 'Flags cases at risk of default before the 15-day window closes — intervenes with reminders, not credit-bureau referrals.',
-  },
-  {
-    title: 'Manager dashboards',
-    body: 'Equity overlays, ward-level trend lines, collection forecasts — the operational view Council expects in 2026.',
+    title: 'File a Screening Review',
+    body: 'If your circumstances don’t fit the standard flow, request a review. A municipal Screening Officer reads every submission.',
   },
 ];
 
-const platform: Array<[string, string]> = [
-  ['Workers Assets', 'Next.js + React on the edge'],
-  ['Durable Objects', 'One case agent per ticket'],
-  ['D1', 'Audit log with point-in-time restore'],
-  ['Vectorize', 'RAG over Brampton bylaws (next sprint)'],
-  ['Workers AI', 'Multilingual, on-platform inference'],
-  ['AI Gateway', 'Cost cap, cache, Claude fallback'],
-  ['Browser Rendering', 'Branded PDF agreements'],
-  ['R2', 'Evidence & document store'],
-];
-
-const stack = [
+const wontDo = [
   {
-    group: 'Edge & runtime',
-    items: [
-      ['Cloudflare Workers', 'Single-region edge runtime, Next.js server routes compile to it'],
-      ['Workers Assets', 'Static frontend bundle co-located with the Worker'],
-      ['Custom domain via Registrar', 'Pointed via DNS once production environment is selected'],
-    ],
+    title: 'It doesn’t decide your case',
+    body: 'A Screening Officer — a person — reviews every Screening Review. The agent only prepares a summary for them.',
   },
   {
-    group: 'State & storage',
-    items: [
-      ['D1', 'Tickets, plans, audit log — SQLite, point-in-time restore'],
-      ['R2', 'Signed PDF agreements and evidence uploads'],
-      ['KV', 'Feature flags & translation cache'],
-    ],
+    title: 'It doesn’t change the bylaw or the amount',
+    body: 'Penalty amounts are set by Brampton City Council. FairPlan can’t lower a fine; it can help you understand and pay it.',
   },
   {
-    group: 'AI',
-    items: [
-      ['Workers AI', 'Llama 3.3 70B + bge-m3 + Whisper, on-platform inference'],
-      ['AI Gateway', 'Cost tracking, request caching, PII guardrails'],
-      ['Anthropic Claude', 'Hot-swappable via AI Gateway for reasoning-heavy steps'],
-    ],
-  },
-  {
-    group: 'Public data',
-    items: [
-      ['Brampton GeoHub', 'Ward boundary FeatureServer — live'],
-      ['Statistics Canada 2021', 'Brampton CSD 3521010 profile, LIM-AT thresholds'],
-      ['Bank of Canada Valet', 'Live prime + overnight rates for APR comparison'],
-    ],
-  },
-];
-
-const skills = [
-  {
-    name: 'explain_ticket',
-    input: 'ticket, language',
-    output: "plain-language explanation in resident's language",
-    notes: 'Composes bylaw context + 3-option narrative. Bounded to ~480 tokens.',
-  },
-  {
-    name: 'propose_plan',
-    input: 'ticket, annual income, household size, language',
-    output: 'plan band, months, monthly $, BoC comparison, plan id (persisted)',
-    notes: 'Deterministic policy logic + LIM-AT band; live BoC rates; no LLM in the decision.',
-  },
-  {
-    name: 'explain_plan',
-    input: 'ticket, band, months, monthly $, CC interest cost, language',
-    output: "warm two-paragraph rationale in resident's language",
-    notes: 'LLM call. Explicitly references concrete numbers from the deterministic plan.',
+    title: 'It doesn’t share your data with collectors',
+    body: 'No credit-bureau referral, no third-party debt collection, no marketing list.',
   },
 ];
 
 export default function AboutPage() {
   return (
     <>
-      <section className="mx-auto max-w-[1200px] px-6 py-16 md:py-24">
-        <p className="font-mono text-xs uppercase tracking-[0.22em] text-fair-dark">
-          About this proof of concept
-        </p>
-        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight md:text-5xl text-balance">
-          What FairPlan is, what it isn&apos;t, and how it&apos;s built.
+      <section className="mx-auto max-w-[820px] px-6 py-20 md:py-28 lg:px-10">
+        <h1 className="font-display text-4xl font-semibold leading-[1.05] tracking-tight md:text-5xl text-balance">
+          About FairPlan.
         </h1>
-        <p className="mt-5 max-w-prose text-lg leading-relaxed text-ink-soft text-balance">
-          FairPlan is a working proof of concept for the City of Brampton&apos;s published POC topic on
-          Administrative Penalty System Modernization &amp; Personalized Payment Experience. It is not affiliated
-          with the City. Every line item from the official benefits list is addressed by a corresponding flow in
-          this build.
+        <p className="mt-6 max-w-prose text-lg leading-relaxed text-ink-soft text-balance">
+          FairPlan is a free tool that helps Brampton residents understand a penalty notice from the
+          City, see what they owe, and choose a payment option that fits their household.
+        </p>
+        <p className="mt-4 max-w-prose text-lg leading-relaxed text-ink-soft text-balance">
+          It’s built around one idea: a fine should never be the thing that pushes a family into
+          default.
         </p>
       </section>
 
-      <section className="mx-auto max-w-[1200px] px-6 pb-16">
-        <header className="max-w-2xl">
-          <p className="font-mono text-xs uppercase tracking-[0.22em] text-fair-dark">
-            The City&apos;s six published benefits
-          </p>
-          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight">
-            Six benefits. One end-to-end system.
-          </h2>
-        </header>
-        <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-3">
-          {benefits.map((b) => (
-            <article key={b.title} className="bg-surface-raised p-7">
-              <h3 className="font-display text-lg font-semibold tracking-tight text-ink">{b.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-ink-soft">{b.body}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-[1200px] px-6 pb-16">
-        <div className="card overflow-hidden">
-          <div className="grid gap-10 p-10 md:grid-cols-[1fr_1.1fr] md:gap-14 md:p-14">
-            <div>
-              <p className="font-mono text-xs uppercase tracking-[0.22em] text-fair-dark">Why Cloudflare</p>
-              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight">
-                Edge-native, audit-grade, procurement-ready.
-              </h2>
-              <p className="mt-5 leading-relaxed text-ink-soft text-balance">
-                FairPlan runs on Cloudflare Workers, with a Durable Object per ticket holding stateful agent
-                context. Every model call routes through AI Gateway for visible cost tracking, caching, and PII
-                redaction — exactly the governance posture a Canadian municipality needs.
-              </p>
-            </div>
-            <ul className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line text-sm">
-              {platform.map(([k, v]) => (
-                <li key={k} className="bg-surface-raised p-5">
-                  <p className="font-mono text-xs uppercase tracking-[0.14em] text-fair-dark">{k}</p>
-                  <p className="mt-1.5 leading-snug text-ink-soft">{v}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-[1200px] px-6 pb-16">
-        <h2 className="font-display text-2xl font-semibold tracking-tight">Architecture</h2>
-        <p className="mt-3 max-w-prose text-ink-soft">
-          A single Next.js app deploys to Cloudflare Workers via @opennextjs/cloudflare. Server-rendered pages live
-          alongside route handlers that delegate to a small set of agent skills. Every model call is
-          provider-agnostic — flip the <code className="font-mono text-fair-dark">AI_PROVIDER</code> environment
-          variable to switch from Workers AI to Anthropic Claude via Cloudflare AI Gateway without changing
-          application code.
-        </p>
-
-        <div className="mt-8 grid gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-2">
-          {stack.map((s) => (
-            <div key={s.group} className="bg-surface-raised p-7">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-fair-dark">{s.group}</p>
-              <ul className="mt-3 space-y-2.5">
-                {s.items.map(([k, v]) => (
-                  <li key={k} className="text-sm">
-                    <span className="font-medium text-ink">{k}</span>
-                    <span className="text-ink-subtle"> — {v}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-[1200px] px-6 pb-16">
-        <h2 className="font-display text-2xl font-semibold tracking-tight">Agent skills</h2>
-        <p className="mt-3 max-w-prose text-ink-soft">
-          Skills are small, auditable, Zod-validated functions. The LLM is used for explanation and translation
-          only — decisions that touch money (which band, which plan length, payment amounts) are deterministic
-          policy code that a Screening Officer can review line-by-line.
-        </p>
-        <div className="mt-8 overflow-hidden rounded-2xl border border-line">
-          <table className="w-full divide-y divide-line text-sm">
-            <thead className="bg-surface-sunken text-left">
-              <tr>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-ink-subtle">
-                  Skill
-                </th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-ink-subtle">
-                  Input
-                </th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-ink-subtle">
-                  Output
-                </th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-ink-subtle">
-                  Notes
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line bg-surface-raised">
-              {skills.map((s) => (
-                <tr key={s.name}>
-                  <td className="px-5 py-4 font-mono text-xs">{s.name}</td>
-                  <td className="px-5 py-4 text-ink-soft">{s.input}</td>
-                  <td className="px-5 py-4 text-ink-soft">{s.output}</td>
-                  <td className="px-5 py-4 text-ink-subtle">{s.notes}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-[1200px] px-6 pb-24">
-        <h2 className="font-display text-2xl font-semibold tracking-tight">Roadmap beyond this sprint</h2>
-        <ul className="mt-5 grid gap-4 md:grid-cols-2">
-          {[
-            ['Durable Objects per case', 'One actor per ticket holding multi-turn conversation, alarms for reminders'],
-            ['Workflows for screening', 'Durable multi-day pipeline with waitForEvent for officer approval'],
-            ['Vectorize over bylaws', 'RAG over Brampton bylaws + Ontario AMPS regs — multilingual via bge-m3'],
-            ['Cloudflare Realtime', 'Live remote hearing with on-screen bylaw clause assistance'],
-            ['Cloudflare Access', 'SSO-gated staff app with Screening Officer queue and audit trail'],
-            ['Email Workers + Queues', 'Outbound reminders + inbound reply routing per ticket ID'],
-          ].map(([t, b]) => (
-            <li key={t} className="card p-5">
-              <p className="font-display text-lg font-semibold">{t}</p>
-              <p className="mt-1.5 text-sm text-ink-soft">{b}</p>
+      <section className="mx-auto max-w-[820px] px-6 pb-20 lg:px-10">
+        <h2 className="font-display text-2xl font-semibold tracking-tight">
+          What you can do here.
+        </h2>
+        <ul className="mt-8 grid gap-5 sm:grid-cols-2">
+          {canDo.map((item) => (
+            <li key={item.title} className="card p-6">
+              <h3 className="font-display text-lg font-semibold tracking-tight text-ink">
+                {item.title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink-soft">{item.body}</p>
             </li>
           ))}
         </ul>
+      </section>
+
+      <section className="mx-auto max-w-[820px] px-6 pb-20 lg:px-10">
+        <h2 className="font-display text-2xl font-semibold tracking-tight">
+          What FairPlan doesn’t do.
+        </h2>
+        <p className="mt-3 max-w-prose text-ink-soft">
+          To set expectations clearly, here’s what FairPlan is <em>not</em>:
+        </p>
+        <ul className="mt-6 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface-raised">
+          {wontDo.map((item) => (
+            <li key={item.title} className="p-6">
+              <h3 className="font-display text-lg font-semibold tracking-tight text-ink">
+                {item.title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink-soft">{item.body}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="mx-auto max-w-[820px] px-6 pb-20 lg:px-10">
+        <h2 className="font-display text-2xl font-semibold tracking-tight">Your language matters.</h2>
+        <p className="mt-3 max-w-prose text-ink-soft text-balance">
+          More than 160 languages are spoken at home across Brampton. FairPlan currently supports
+          English, Punjabi (ਪੰਜਾਬੀ), Hindi (हिन्दी), and French. The translation runs on every page —
+          notice details, payment plans, and the agent’s explanations all switch together when you
+          change languages.
+        </p>
+      </section>
+
+      <section className="mx-auto max-w-[820px] px-6 pb-20 lg:px-10">
+        <h2 className="font-display text-2xl font-semibold tracking-tight">Your privacy.</h2>
+        <div className="mt-4 space-y-4 text-ink-soft">
+          <p className="max-w-prose">
+            You can look up a notice and read it in your language without creating an account or
+            providing any personal information.
+          </p>
+          <p className="max-w-prose">
+            If you set up a payment plan or file a Screening Review, FairPlan stores only what’s
+            needed to fulfil that request — the ticket number, the plan terms, and any evidence you
+            choose to attach. We don’t sell data and we don’t share it with collectors or credit
+            bureaus.
+          </p>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[820px] px-6 pb-24 lg:px-10">
+        <div className="card p-8 md:p-10">
+          <h2 className="font-display text-2xl font-semibold tracking-tight">
+            Some things still need a person.
+          </h2>
+          <p className="mt-3 max-w-prose text-ink-soft">
+            For an in-person hearing, an unresolved notice, or any other municipal service, you can
+            reach the City through brampton.ca or 311.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link href="/" className="btn-primary text-sm">
+              Look up my notice
+            </Link>
+            <Link href="/bylaws" className="btn-ghost text-sm border border-line">
+              Browse the bylaws
+            </Link>
+          </div>
+        </div>
       </section>
     </>
   );

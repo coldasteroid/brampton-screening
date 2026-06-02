@@ -9,6 +9,7 @@ dist
 .dev.vars.*
 !.dev.vars.example
 *.log
+*.tsbuildinfo
 worker-configuration.d.ts
 .env
 .env.*

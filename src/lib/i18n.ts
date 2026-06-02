@@ -191,6 +191,63 @@ const dict = {
     fr: 'Audience requise',
   },
 
+  // Assistant chatbot
+  'assistant.title': {
+    en: 'FairPlan Assistant',
+    pa: 'FairPlan ਸਹਾਇਕ',
+    hi: 'FairPlan सहायक',
+    fr: 'Assistant FairPlan',
+  },
+  'assistant.subtitle': {
+    en: 'Ask about your notice, in your language',
+    pa: 'ਆਪਣੇ ਨੋਟਿਸ ਬਾਰੇ ਆਪਣੀ ਭਾਸ਼ਾ ਵਿੱਚ ਪੁੱਛੋ',
+    hi: 'अपने नोटिस के बारे में अपनी भाषा में पूछें',
+    fr: 'Posez vos questions sur votre avis, dans votre langue',
+  },
+  'assistant.greeting': {
+    en: 'Hi — I can explain a Brampton penalty notice, your options, and how payment plans work. What would you like to know?',
+    pa: 'ਸਤ ਸ੍ਰੀ ਅਕਾਲ — ਮੈਂ ਬ੍ਰੈਮਪਟਨ ਜੁਰਮਾਨਾ ਨੋਟਿਸ, ਤੁਹਾਡੇ ਵਿਕਲਪ ਅਤੇ ਭੁਗਤਾਨ ਯੋਜਨਾਵਾਂ ਸਮਝਾ ਸਕਦਾ ਹਾਂ। ਤੁਸੀਂ ਕੀ ਜਾਣਨਾ ਚਾਹੋਗੇ?',
+    hi: 'नमस्ते — मैं ब्रैम्पटन दंड नोटिस, आपके विकल्प और भुगतान योजनाएं समझा सकता हूँ। आप क्या जानना चाहेंगे?',
+    fr: 'Bonjour — je peux expliquer un avis de pénalité de Brampton, vos options et le fonctionnement des plans de paiement. Que souhaitez-vous savoir ?',
+  },
+  'assistant.placeholder': {
+    en: 'Type your question…',
+    pa: 'ਆਪਣਾ ਸਵਾਲ ਲਿਖੋ…',
+    hi: 'अपना प्रश्न लिखें…',
+    fr: 'Tapez votre question…',
+  },
+  'assistant.send': { en: 'Send', pa: 'ਭੇਜੋ', hi: 'भेजें', fr: 'Envoyer' },
+  'assistant.disclaimer': {
+    en: 'General guidance only. A human Screening Officer decides every case.',
+    pa: 'ਸਿਰਫ਼ ਆਮ ਜਾਣਕਾਰੀ। ਹਰ ਕੇਸ ਦਾ ਫੈਸਲਾ ਮਨੁੱਖੀ ਸਕ੍ਰੀਨਿੰਗ ਅਧਿਕਾਰੀ ਕਰਦਾ ਹੈ।',
+    hi: 'केवल सामान्य मार्गदर्शन। हर मामले का निर्णय मानव स्क्रीनिंग अधिकारी करता है।',
+    fr: 'Conseils généraux seulement. Un agent de présélection humain décide de chaque cas.',
+  },
+  'assistant.starter_options': {
+    en: 'What are my options?',
+    pa: 'ਮੇਰੇ ਵਿਕਲਪ ਕੀ ਹਨ?',
+    hi: 'मेरे विकल्प क्या हैं?',
+    fr: 'Quelles sont mes options ?',
+  },
+  'assistant.starter_review': {
+    en: 'How do I request a review?',
+    pa: 'ਮੈਂ ਸਮੀਖਿਆ ਦੀ ਬੇਨਤੀ ਕਿਵੇਂ ਕਰਾਂ?',
+    hi: 'मैं समीक्षा का अनुरोध कैसे करूँ?',
+    fr: 'Comment demander une révision ?',
+  },
+  'assistant.starter_plan': {
+    en: 'Can I pay in instalments?',
+    pa: 'ਕੀ ਮੈਂ ਕਿਸ਼ਤਾਂ ਵਿੱਚ ਭੁਗਤਾਨ ਕਰ ਸਕਦਾ ਹਾਂ?',
+    hi: 'क्या मैं किस्तों में भुगतान कर सकता हूँ?',
+    fr: 'Puis-je payer en plusieurs versements ?',
+  },
+  'assistant.error': {
+    en: 'Sorry — something went wrong. Please try again.',
+    pa: 'ਮਾਫ਼ ਕਰਨਾ — ਕੁਝ ਗਲਤ ਹੋ ਗਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
+    hi: 'क्षमा करें — कुछ गलत हो गया। कृपया पुनः प्रयास करें।',
+    fr: 'Désolé — une erreur est survenue. Veuillez réessayer.',
+  },
+
   // Misc
   'a11y.skip_to_content': {
     en: 'Skip to content',

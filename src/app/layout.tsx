@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Fraunces } from 'next/font/google';
 import Nav from '~/components/Nav';
+import AssistantChat from '~/components/AssistantChat';
 import { LANGUAGES, t } from '~/lib/i18n';
 import { getCurrentUser } from '~/lib/auth-server';
 import { getLang } from '~/lib/i18n-server';
@@ -22,12 +23,12 @@ const fraunces = Fraunces({
 export const metadata: Metadata = {
   title: 'FairPlan — Brampton APS Modernization',
   description:
-    'AI-native administrative penalty modernization and personalized payment experience for the City of Brampton.',
+    'Look up your Brampton penalty notice, understand the bylaw in your language, and choose a payment plan that fits your household.',
   icons: { icon: '/favicon.svg' },
   openGraph: {
     title: 'FairPlan — Brampton APS Modernization',
     description:
-      'AI-native administrative penalty modernization and personalized payment experience for the City of Brampton.',
+      'Look up your Brampton penalty notice, understand the bylaw in your language, and choose a payment plan that fits your household.',
     type: 'website',
   },
 };
@@ -44,13 +45,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </a>
         <Nav user={user} lang={lang} />
         <main id="main">{children}</main>
+        <AssistantChat lang={lang} />
         <footer className="mt-24 border-t border-line/60 bg-ink text-white/85">
           <div className="mx-auto grid max-w-[1200px] gap-10 px-6 py-14 md:grid-cols-4 lg:px-10">
             <div className="md:col-span-2">
               <p className="font-display text-2xl font-semibold tracking-tight text-white">FairPlan</p>
               <p className="mt-3 max-w-prose text-sm text-white/70">
-                A proof of concept for the City of Brampton&apos;s Administrative Penalty System
-                Modernization &amp; Personalized Payment Experience program. Not affiliated with the City.
+                Look up a Brampton penalty notice, read it in your language, and choose a payment plan
+                that fits your household. Not affiliated with the City of Brampton.
               </p>
             </div>
             <div>
@@ -76,7 +78,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </div>
           <div className="border-t border-white/10">
             <div className="mx-auto flex max-w-[1200px] flex-col items-start gap-2 px-6 py-5 text-xs text-white/60 md:flex-row md:items-center md:justify-between lg:px-10">
-              <span>© 2026 FairPlan POC · Brampton, Ontario</span>
+              <span>© 2026 FairPlan · Brampton, Ontario</span>
               <span>Built on Cloudflare</span>
             </div>
           </div>

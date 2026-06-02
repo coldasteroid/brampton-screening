@@ -96,6 +96,52 @@ No JSON, no headings, no disclaimers beyond the closing.`,
   ];
 }
 
+export function assistantPrompt(args: {
+  history: { role: 'user' | 'assistant'; content: string }[];
+  langName: string;
+  bylawContext: string;
+  ticketContext?: string;
+}): { role: 'system' | 'user' | 'assistant'; content: string }[] {
+  const system = `${SYSTEM_GUARDRAILS}
+
+You are answering a live chat in ${args.langName}. Always reply in ${args.langName}, even if the resident writes in another language.
+${args.ticketContext ? `The resident is asking about this specific notice:\n${args.ticketContext}\n` : ''}
+Relevant Brampton / Ontario by-law context (rely on this; do not invent rules beyond it):
+${args.bylawContext || '(no specific by-law text retrieved — answer generally about how the APS process works)'}
+
+Style: keep replies to 2-4 short sentences or a tight list. Always end with one concrete next step (look up the notice, request a Screening Review within 15 days, or set up a FairPlan instalment). Never give legal advice or predict an outcome; describe the screening-review process neutrally.`;
+  return [
+    { role: 'system', content: system },
+    ...args.history.map((m) => ({ role: m.role, content: m.content })),
+  ];
+}
+
+export function reminderPrompt(args: {
+  ticket: TicketRow;
+  langName: string;
+  occasion: string;
+  plan?: { months: number; monthlyDollars: number; instalmentNumber: number } | null;
+}) {
+  return [
+    { role: 'system' as const, content: SYSTEM_GUARDRAILS },
+    {
+      role: 'user' as const,
+      content: `Write a short, warm payment reminder in ${args.langName} for a Brampton resident. This is a notification message (email/SMS length), not a letter.
+
+Facts:
+- Notice ${args.ticket.id}: ${args.ticket.offence_label}, $${(args.ticket.amount_cents / 100).toFixed(2)} CAD
+- Occasion: ${args.occasion}
+${args.plan ? `- They are on a FairPlan instalment plan: instalment ${args.plan.instalmentNumber} of ${args.plan.months}, $${args.plan.monthlyDollars.toFixed(2)}/month, 0% interest.` : ''}
+
+Rules:
+- 2-3 sentences maximum. Friendly and non-punitive — never threatening.
+- Mention the amount and the occasion plainly.
+- Offer one helpful option (a 0% FairPlan instalment if no plan exists, or "your plan is on track" if one does).
+- No subject line, no signature, no JSON. Plain prose in ${args.langName} only.`,
+    },
+  ];
+}
+
 export function officerRecommendationPrompt(args: {
   ticket: TicketRow;
   penalty: PenaltyCode;

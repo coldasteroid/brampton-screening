@@ -1,17 +1,22 @@
 import { complete } from '../ai/router';
 import {
+  assistantPrompt,
   explainTicketPrompt,
   officerRecommendationPrompt,
   planExplanationPrompt,
+  reminderPrompt,
+  SUPPORTED_LANGUAGES,
   type Language,
 } from '../ai/prompts';
 import { findPenalty } from '../data/penalties';
 import { getRateBundle, creditCardInterestCost } from '../data/boc';
 import { hardshipBand } from '../data/statcan';
 import {
+  getTicket,
   insertPlan,
   logAudit,
   setReviewRecommendation,
+  type EvidenceItemRow,
   type PlanRow,
   type ScreeningReviewRow,
   type TicketRow,
@@ -291,4 +296,117 @@ export async function explainPlan(
   });
 
   return { text: result.text, provider: result.provider };
+}
+
+/**
+ * Conversational assistant skill — the multilingual chatbot. Grounds each turn
+ * in retrieved by-law chunks (RAG) plus optional ticket facts, then answers in
+ * the resident's language. Advisory only — never decides a case.
+ */
+export async function chatAssistant(
+  env: Env,
+  args: {
+    messages: { role: 'user' | 'assistant'; content: string }[];
+    language: Language;
+    ticketId?: string | null;
+  },
+): Promise<{ text: string; provider: 'workers-ai' | 'anthropic' | 'demo'; citations: string[] }> {
+  const lastUser = [...args.messages].reverse().find((m) => m.role === 'user')?.content ?? '';
+  const hits = lookupBylaw(lastUser, 3);
+  const bylawContext = hits.map((h) => `- ${h.bylaw} ${h.section} — ${h.title}: ${h.body}`).join('\n');
+
+  let ticketContext = '';
+  if (args.ticketId) {
+    const ticket = await getTicket(env.DB, args.ticketId);
+    if (ticket) {
+      const penalty = findPenalty(ticket.offence_code);
+      ticketContext = `Notice ${ticket.id}: ${ticket.offence_label} ($${(ticket.amount_cents / 100).toFixed(2)} CAD), due ${ticket.due_at}${penalty ? `, cited by-law ${penalty.bylaw}` : ''}.`;
+    }
+  }
+
+  const result = await complete(env, {
+    messages: assistantPrompt({
+      history: args.messages,
+      langName: SUPPORTED_LANGUAGES[args.language],
+      bylawContext,
+      ticketContext,
+    }),
+    tag: 'assistant',
+    maxTokens: 420,
+    temperature: 0.5,
+  });
+
+  await logAudit(env.DB, {
+    ticket_id: args.ticketId ?? undefined,
+    actor: 'agent:assistant',
+    action: 'chat',
+    details: { language: args.language, provider: result.provider, ragHits: hits.map((h) => h.id) },
+  });
+
+  return {
+    text: result.text,
+    provider: result.provider,
+    citations: hits.map((h) => `${h.bylaw} ${h.section}`),
+  };
+}
+
+const REMINDER_OCCASION: Record<string, string> = {
+  notice_due_5d: 'the notice is due in 5 days',
+  notice_due_1d: 'the notice is due tomorrow',
+  notice_due_0d: 'the notice is due today',
+  plan_instalment_3d: 'their next FairPlan instalment is due in 3 days',
+  plan_instalment_0d: 'their FairPlan instalment is due today',
+};
+
+/**
+ * Compose a personalized, multilingual payment reminder body for a notice or
+ * plan instalment. Used by the reminder cron and by the resident-facing preview.
+ */
+export async function composeReminder(
+  env: Env,
+  args: {
+    ticket: TicketRow;
+    kind: string;
+    language: Language;
+    plan?: { months: number; monthlyDollars: number; instalmentNumber: number } | null;
+  },
+): Promise<{ text: string; provider: 'workers-ai' | 'anthropic' | 'demo' }> {
+  const result = await complete(env, {
+    messages: reminderPrompt({
+      ticket: args.ticket,
+      langName: SUPPORTED_LANGUAGES[args.language],
+      occasion: REMINDER_OCCASION[args.kind] ?? 'a payment is coming due',
+      plan: args.plan ?? null,
+    }),
+    tag: 'reminder',
+    maxTokens: 220,
+    temperature: 0.5,
+  });
+  return { text: result.text, provider: result.provider };
+}
+
+/**
+ * Evidence compilation — assemble the files attached to a screening review into
+ * a single honest manifest the Screening Officer (and the recommendation agent)
+ * can read at a glance. Deterministic; makes no OCR/content claims.
+ */
+export function compileEvidenceSummary(evidence: EvidenceItemRow[]): string {
+  if (evidence.length === 0) return '';
+  const byType = new Map<string, number>();
+  let totalBytes = 0;
+  for (const e of evidence) {
+    const type = (e.mime_type?.split('/')[1] ?? 'file').toUpperCase();
+    byType.set(type, (byType.get(type) ?? 0) + 1);
+    totalBytes += e.size_bytes ?? 0;
+  }
+  const typeSummary = Array.from(byType.entries())
+    .map(([type, n]) => `${n}× ${type}`)
+    .join(', ');
+  const files = evidence
+    .map(
+      (e) =>
+        `"${e.filename ?? e.r2_key}" (${e.mime_type ?? 'unknown'}, ${e.size_bytes ? `${Math.round(e.size_bytes / 1024)} KB` : 'size n/a'})`,
+    )
+    .join('; ');
+  return `${evidence.length} file(s) attached — ${typeSummary}; ${Math.round(totalBytes / 1024)} KB total. Files: ${files}.`;
 }

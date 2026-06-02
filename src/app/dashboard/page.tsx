@@ -4,6 +4,7 @@ import PredictiveCollections from '~/components/PredictiveCollections';
 import { ticketsByWard, listTickets } from '~/lib/db';
 import { getRateBundle } from '~/lib/data/boc';
 import { getBramptonProfile } from '~/lib/data/statcan';
+import { recommendStrategy } from '~/lib/collections';
 import { env } from '~/lib/runtime';
 
 export const metadata: Metadata = { title: 'Public dashboard · FairPlan' };
@@ -23,13 +24,15 @@ export default async function DashboardPage() {
     .map((t) => {
       const daysToDue = (Date.parse(t.due_at) - now) / 86_400_000;
       const risk = Math.min(1, Math.max(0, 1.2 - daysToDue / 15));
+      const amount = t.amount_cents / 100;
       return {
         id: t.id,
         ward: t.ward,
         label: t.offence_label,
-        amount: t.amount_cents / 100,
+        amount,
         daysToDue,
         risk,
+        strategy: recommendStrategy({ risk, daysToDue, amount }),
       };
     })
     .sort((a, b) => b.risk - a.risk)

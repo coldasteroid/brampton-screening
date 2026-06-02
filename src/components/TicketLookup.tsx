@@ -2,11 +2,7 @@
 
 import { useState } from 'react';
 
-const SAMPLES = [
-  { id: 'BRP-2026-001003', hint: '$750 property maintenance · ward 9' },
-  { id: 'BRP-2026-001004', hint: '$1,000 pool fence · ward 6' },
-  { id: 'BRP-2026-001006', hint: '$1,500 rental unlicensed · ward 9' },
-];
+const SAMPLE_ID = 'BRP-2026-001003';
 
 interface Props {
   variant?: 'hero' | 'inline';
@@ -62,21 +58,15 @@ export default function TicketLookup({ variant = 'hero' }: Props) {
           </svg>
         </button>
       </form>
-      <p id="ticket-lookup-help" className="mt-2 px-1 text-xs text-ink-subtle">
-        Or jump straight to a seeded demo notice:{' '}
-        {SAMPLES.map((s, i) => (
-          <span key={s.id}>
-            {i > 0 && ' · '}
-            <button
-              type="button"
-              onClick={() => go(s.id)}
-              className="font-mono text-ink underline underline-offset-4 hover:text-fair-dark"
-              aria-label={`Open sample notice ${s.id} (${s.hint})`}
-            >
-              {s.id}
-            </button>
-          </span>
-        ))}
+      <p id="ticket-lookup-help" className="mt-3 px-1 text-xs text-ink-subtle">
+        Don&apos;t have your notice handy?{' '}
+        <button
+          type="button"
+          onClick={() => go(SAMPLE_ID)}
+          className="underline-offset-4 hover:text-ink hover:underline"
+        >
+          Open a sample.
+        </button>
       </p>
     </div>
   );

@@ -89,9 +89,12 @@ async function completeAnthropic(env: Env, opts: CompleteOpts): Promise<Completi
 }
 
 function demoFallback(opts: CompleteOpts): CompletionResult {
+  const system = opts.messages.find((m) => m.role === 'system')?.content ?? '';
   const lastUser = [...opts.messages].reverse().find((m) => m.role === 'user')?.content ?? '';
+  // Include the system text so language detection works for chat/reminder, where
+  // the "respond in <language>" marker lives in the system prompt, not the user turn.
   return {
-    text: sampleResponse(opts.tag ?? '', lastUser),
+    text: sampleResponse(opts.tag ?? '', `${system}\n${lastUser}`),
     provider: 'demo',
     model: 'fairplan-demo-fallback',
   };

@@ -30,5 +30,11 @@
       "binding": "CONFIG",
       "id": "fc928ac94d584a13bf8663c6ed78d40c"
     }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "EVIDENCE",
+      "bucket_name": "fairplan-evidence"
+    }
   ]
 }

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { requireRole } from '~/lib/auth';
-import { getReview, getTicket } from '~/lib/db';
-import { draftOfficerRecommendation } from '~/lib/agents/skills';
+import { getReview, getTicket, listEvidence } from '~/lib/db';
+import { compileEvidenceSummary, draftOfficerRecommendation } from '~/lib/agents/skills';
 import { getCurrentUser } from '~/lib/auth-server';
 import { env } from '~/lib/runtime';
 
@@ -21,6 +21,9 @@ export async function POST(request: Request) {
   const ticket = await getTicket(e.DB, review.ticket_id);
   if (!ticket) return new Response('ticket missing', { status: 500 });
 
-  const recommendation = await draftOfficerRecommendation(e, { ticket, review });
+  const evidence = await listEvidence(e.DB, review.id);
+  const evidenceSummary = compileEvidenceSummary(evidence);
+
+  const recommendation = await draftOfficerRecommendation(e, { ticket, review, evidenceSummary });
   return Response.json(recommendation);
 }

@@ -55,6 +55,10 @@ export async function ticketsByWard(db: D1Database): Promise<Array<{ ward: numbe
   return res.results ?? [];
 }
 
+export async function getPlan(db: D1Database, id: string): Promise<PlanRow | null> {
+  return await db.prepare('SELECT * FROM payment_plans WHERE id = ?1 LIMIT 1').bind(id).first<PlanRow>();
+}
+
 export async function insertPlan(db: D1Database, plan: PlanRow): Promise<void> {
   await db
     .prepare(
@@ -390,10 +394,12 @@ export async function pendingDueReminders(db: D1Database, nowIso: string, limit 
   return res.results ?? [];
 }
 
-export async function markReminderSent(db: D1Database, id: string): Promise<void> {
+export async function markReminderSent(db: D1Database, id: string, payload?: string | null): Promise<void> {
   await db
-    .prepare('UPDATE reminders SET status = \'sent\', sent_at = datetime(\'now\') WHERE id = ?1')
-    .bind(id)
+    .prepare(
+      'UPDATE reminders SET status = \'sent\', sent_at = datetime(\'now\'), payload = COALESCE(?2, payload) WHERE id = ?1',
+    )
+    .bind(id, payload ?? null)
     .run();
 }
 
