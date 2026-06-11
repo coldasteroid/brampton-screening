@@ -45,7 +45,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </a>
         <Nav user={user} lang={lang} />
         <main id="main">{children}</main>
-        <AssistantChat lang={lang} />
+        {user?.role !== 'officer' && user?.role !== 'manager' && <AssistantChat lang={lang} />}
         <footer className="mt-24 border-t border-line/60 bg-ink text-white/85">
           <div className="mx-auto grid max-w-[1200px] gap-10 px-6 py-14 md:grid-cols-4 lg:px-10">
             <div className="md:col-span-2">

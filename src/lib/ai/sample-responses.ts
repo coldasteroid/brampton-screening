@@ -95,6 +95,17 @@ const ASSISTANT: Record<Lang, string> = {
   es: `Con gusto. Bajo el Sistema de Penalidades Administrativas de Brampton tiene tres opciones: pagar el aviso, solicitar una Revisión de Selección dentro de 15 días (gratis, y un oficial humano decide), o establecer un plan de cuotas FairPlan al 0% de interés. Dígame su número de aviso y qué le preocupa, y le indicaré el siguiente paso.`,
 };
 
+const OFFICER_ASSISTANT_FALLBACK = `Happy to help. I work only on Brampton APS matters; for anything outside that scope I'll decline. A few things I can do here:
+
+- **Look up a notice** — give me a BRP-… number and I'll pull the offence, amount, dates, by-law and risk class.
+- **Pull a screening review** — narrative, reasons, status, prior AI recommendation, and a compiled evidence manifest.
+- **Interpret a by-law** — search the Brampton/AMPS corpus and cite the section.
+- **Find precedent** — recent decided reviews, optionally filtered to one offence code.
+- **Compute deadlines** — the 15-day screening and hearing windows under O. Reg. 333/07.
+- **Draft Notice of Decision reasoning** — give me the case facts and I'll suggest 3–4 sentences.
+
+You can also attach images or PDFs to a turn — I'll see the metadata (filename, type, size). What case are you reviewing?`;
+
 const REMINDER: Record<Lang, string> = {
   en: `A quick reminder about your City of Brampton notice — the balance is coming due soon. You don't have to pay it all at once: a FairPlan instalment plan spreads it over months at 0% interest. We're here if you need a hand.`,
   pa: `ਤੁਹਾਡੇ ਬ੍ਰੈਮਪਟਨ ਨੋਟਿਸ ਬਾਰੇ ਯਾਦ-ਦਹਾਨੀ — ਬਕਾਇਆ ਜਲਦੀ ਦੇਣਾ ਹੈ। ਸਾਰਾ ਇੱਕੋ ਵਾਰ ਦੇਣ ਦੀ ਲੋੜ ਨਹੀਂ: FairPlan ਕਿਸ਼ਤ ਯੋਜਨਾ ਇਸਨੂੰ 0% ਵਿਆਜ 'ਤੇ ਮਹੀਨਿਆਂ ਵਿੱਚ ਵੰਡ ਦਿੰਦੀ ਹੈ। ਮਦਦ ਲਈ ਅਸੀਂ ਹਾਜ਼ਰ ਹਾਂ।`,
@@ -122,6 +133,7 @@ export function sampleResponse(tag: string, userContent: string): string {
   const lang = detectLanguage(userContent);
   if (tag === 'explain_plan') return EXPLAIN_PLAN[lang];
   if (tag === 'assistant') return ASSISTANT[lang];
+  if (tag === 'officer_assistant') return OFFICER_ASSISTANT_FALLBACK;
   if (tag === 'reminder') return REMINDER[lang];
   return EXPLAIN[lang];
 }

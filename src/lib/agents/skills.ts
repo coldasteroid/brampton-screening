@@ -2,12 +2,14 @@ import { complete } from '../ai/router';
 import {
   assistantPrompt,
   explainTicketPrompt,
+  officerAgentPrompt,
   officerRecommendationPrompt,
   planExplanationPrompt,
   reminderPrompt,
   SUPPORTED_LANGUAGES,
   type Language,
 } from '../ai/prompts';
+import { OFFICER_TOOLS, runOfficerTool, toolCatalog } from './officer-tools';
 import { findPenalty } from '../data/penalties';
 import { getRateBundle, creditCardInterestCost } from '../data/boc';
 import { hardshipBand } from '../data/statcan';
@@ -16,7 +18,6 @@ import {
   insertPlan,
   logAudit,
   setReviewRecommendation,
-  type EvidenceItemRow,
   type PlanRow,
   type ScreeningReviewRow,
   type TicketRow,
@@ -350,6 +351,212 @@ export async function chatAssistant(
   };
 }
 
+export interface OfficerAttachment {
+  filename: string;
+  mimeType: string;
+  sizeBytes: number;
+}
+
+export interface OfficerAgentMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  attachments?: OfficerAttachment[];
+}
+
+export interface OfficerAgentResult {
+  text: string;
+  provider: 'workers-ai' | 'anthropic' | 'demo';
+  citations: string[];
+  toolsUsed: string[];
+}
+
+const MAX_ITERATIONS = 5;
+const TOOL_RESULT_PREFIX = 'TOOL_RESULT';
+const TOOL_RESULT_MAX_CHARS = 4000;
+
+/**
+ * Officer Agent — tool-using agentic loop. The Llama model emits one JSON
+ * object per turn (either {tool, args} or {final}); the loop executes tools,
+ * feeds results back as TOOL_RESULT user messages, and stops when it gets a
+ * `final` or hits the 5-iteration cap. The model's scope is enforced both at
+ * the prompt level (Scope guard) and at the tool level (each tool's zod schema
+ * rejects off-topic args). Surfaced on the /officer/agent page.
+ */
+export async function officerChatAssistant(
+  env: Env,
+  args: {
+    messages: OfficerAgentMessage[];
+    ticketId?: string | null;
+  },
+): Promise<OfficerAgentResult> {
+  // Build initial transcript: include attachment metadata inline so the model
+  // can reference what the officer attached without us reading file contents.
+  const transcript: { role: 'user' | 'assistant'; content: string }[] = args.messages.map((m) => ({
+    role: m.role,
+    content: appendAttachmentNotes(m.content, m.attachments),
+  }));
+  const attachmentCount = args.messages.reduce((n, m) => n + (m.attachments?.length ?? 0), 0);
+
+  // Optional header-pinned ticket grounding. The agent can still call get_ticket itself.
+  let ticketContext = '';
+  if (args.ticketId) {
+    const ticket = await getTicket(env.DB, args.ticketId);
+    if (ticket) {
+      const penalty = findPenalty(ticket.offence_code);
+      ticketContext = `Notice ${ticket.id}: ${ticket.offence_label} ($${(ticket.amount_cents / 100).toFixed(2)} CAD), issued ${ticket.issued_at}, due ${ticket.due_at}${penalty ? `, by-law ${penalty.bylaw}, risk class ${penalty.riskLevel}` : ''}.`;
+    }
+  }
+
+  const catalog = toolCatalog();
+  const citations = new Set<string>();
+  const toolsUsed: string[] = [];
+  let lastCallSignature: string | null = null;
+  let provider: 'workers-ai' | 'anthropic' | 'demo' = 'demo';
+  let finalText: string | null = null;
+  let iterations = 0;
+
+  for (let i = 0; i < MAX_ITERATIONS; i++) {
+    iterations = i + 1;
+    const result = await complete(env, {
+      messages: officerAgentPrompt({ history: transcript, toolCatalog: catalog, ticketContext }),
+      tag: 'officer_assistant',
+      maxTokens: 700,
+      temperature: 0.2,
+    });
+    provider = result.provider;
+
+    // Demo provider has no JSON shape — return its canned reply as-is.
+    if (result.provider === 'demo') {
+      finalText = result.text;
+      break;
+    }
+
+    const parsed = parseAgentTurn(result.text);
+    if (parsed.kind === 'final' || parsed.kind === 'raw') {
+      finalText = parsed.text;
+      break;
+    }
+
+    // Runaway guard: if the model just emitted the identical tool+args, force it to answer.
+    const signature = `${parsed.tool}:${stableStringify(parsed.args)}`;
+    if (signature === lastCallSignature) {
+      transcript.push({ role: 'assistant', content: result.text });
+      transcript.push({
+        role: 'user',
+        content: `${TOOL_RESULT_PREFIX} error: repeated identical call — answer now with {"final": "..."}`,
+      });
+      lastCallSignature = signature;
+      continue;
+    }
+    lastCallSignature = signature;
+
+    const toolResult = await runOfficerTool(env, parsed.tool, parsed.args);
+    toolsUsed.push(parsed.tool);
+
+    // Harvest citations from search_bylaws hits so the UI can show pills.
+    if (parsed.tool === 'search_bylaws' && toolResult.ok) {
+      const data = toolResult.data as { hits?: Array<{ bylaw: string; section: string }> } | undefined;
+      for (const h of data?.hits ?? []) citations.add(`${h.bylaw} ${h.section}`);
+    }
+
+    transcript.push({ role: 'assistant', content: result.text });
+    transcript.push({
+      role: 'user',
+      content: formatToolResult(parsed.tool, toolResult),
+    });
+  }
+
+  // If we never got a final answer, force one more pass that demands {"final": ...}.
+  if (finalText === null) {
+    transcript.push({
+      role: 'user',
+      content: 'Answer now. Output only a single JSON object: {"final": "<your answer in markdown>"}.',
+    });
+    const last = await complete(env, {
+      messages: officerAgentPrompt({ history: transcript, toolCatalog: catalog, ticketContext }),
+      tag: 'officer_assistant',
+      maxTokens: 600,
+      temperature: 0.2,
+    });
+    provider = last.provider;
+    const parsed = parseAgentTurn(last.text);
+    finalText = parsed.kind === 'final' ? parsed.text : parsed.kind === 'raw' ? parsed.text : last.text;
+  }
+
+  await logAudit(env.DB, {
+    ticket_id: args.ticketId ?? undefined,
+    actor: 'agent:officer_assistant',
+    action: 'chat',
+    details: { provider, toolsUsed, iterations, attachmentCount },
+  });
+
+  return {
+    text: finalText,
+    provider,
+    citations: Array.from(citations),
+    toolsUsed,
+  };
+}
+
+function appendAttachmentNotes(content: string, attachments?: OfficerAttachment[]): string {
+  if (!attachments || attachments.length === 0) return content;
+  const notes = attachments
+    .map(
+      (a) =>
+        `\n[Attached file: "${a.filename}" (${a.mimeType}, ${Math.round(a.sizeBytes / 1024)} KB) — metadata only, file contents not extracted]`,
+    )
+    .join('');
+  return content + notes;
+}
+
+type AgentTurn =
+  | { kind: 'final'; text: string }
+  | { kind: 'tool'; tool: string; args: unknown }
+  | { kind: 'raw'; text: string };
+
+function parseAgentTurn(raw: string): AgentTurn {
+  // Llama 3 occasionally wraps JSON in ```json fences — strip them.
+  const s = raw.trim().replace(/^```(?:json)?\s*/i, '').replace(/```$/i, '').trim();
+  let obj: unknown = null;
+  try {
+    obj = JSON.parse(s);
+  } catch {
+    const first = s.indexOf('{');
+    const last = s.lastIndexOf('}');
+    if (first >= 0 && last > first) {
+      try {
+        obj = JSON.parse(s.slice(first, last + 1));
+      } catch {
+        obj = null;
+      }
+    }
+  }
+  if (obj && typeof obj === 'object') {
+    const o = obj as { tool?: unknown; args?: unknown; final?: unknown };
+    if (typeof o.final === 'string') return { kind: 'final', text: o.final };
+    if (typeof o.tool === 'string') return { kind: 'tool', tool: o.tool, args: o.args };
+  }
+  // Unparseable — treat raw text as a final answer so the loop terminates.
+  return { kind: 'raw', text: raw.trim() };
+}
+
+function formatToolResult(toolName: string, result: { ok: boolean; data?: unknown; error?: string }): string {
+  const payload = result.ok ? result.data : { error: result.error };
+  let body = JSON.stringify(payload);
+  if (body.length > TOOL_RESULT_MAX_CHARS) body = body.slice(0, TOOL_RESULT_MAX_CHARS) + '…(truncated)';
+  return `${TOOL_RESULT_PREFIX} ${toolName}: ${body}`;
+}
+
+function stableStringify(v: unknown): string {
+  if (v === null || typeof v !== 'object') return JSON.stringify(v);
+  if (Array.isArray(v)) return '[' + v.map(stableStringify).join(',') + ']';
+  const keys = Object.keys(v as Record<string, unknown>).sort();
+  return '{' + keys.map((k) => JSON.stringify(k) + ':' + stableStringify((v as Record<string, unknown>)[k])).join(',') + '}';
+}
+
+// Keep `OFFICER_TOOLS` referenced so tree-shaking can't drop the registry.
+void OFFICER_TOOLS;
+
 const REMINDER_OCCASION: Record<string, string> = {
   notice_due_5d: 'the notice is due in 5 days',
   notice_due_1d: 'the notice is due tomorrow',
@@ -385,28 +592,7 @@ export async function composeReminder(
   return { text: result.text, provider: result.provider };
 }
 
-/**
- * Evidence compilation — assemble the files attached to a screening review into
- * a single honest manifest the Screening Officer (and the recommendation agent)
- * can read at a glance. Deterministic; makes no OCR/content claims.
- */
-export function compileEvidenceSummary(evidence: EvidenceItemRow[]): string {
-  if (evidence.length === 0) return '';
-  const byType = new Map<string, number>();
-  let totalBytes = 0;
-  for (const e of evidence) {
-    const type = (e.mime_type?.split('/')[1] ?? 'file').toUpperCase();
-    byType.set(type, (byType.get(type) ?? 0) + 1);
-    totalBytes += e.size_bytes ?? 0;
-  }
-  const typeSummary = Array.from(byType.entries())
-    .map(([type, n]) => `${n}× ${type}`)
-    .join(', ');
-  const files = evidence
-    .map(
-      (e) =>
-        `"${e.filename ?? e.r2_key}" (${e.mime_type ?? 'unknown'}, ${e.size_bytes ? `${Math.round(e.size_bytes / 1024)} KB` : 'size n/a'})`,
-    )
-    .join('; ');
-  return `${evidence.length} file(s) attached — ${typeSummary}; ${Math.round(totalBytes / 1024)} KB total. Files: ${files}.`;
-}
+// Re-export for back-compat with existing imports (officer/[id]/page.tsx,
+// screening/recommend route). The implementation lives in ../evidence to keep
+// the agent tool registry free of a circular dep on this file.
+export { compileEvidenceSummary } from '../evidence';

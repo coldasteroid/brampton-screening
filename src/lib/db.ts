@@ -510,6 +510,79 @@ export async function listEvidence(db: D1Database, reviewId: string): Promise<Ev
   return res.results ?? [];
 }
 
+export interface RecentDecisionRow {
+  review_id: string;
+  ticket_id: string;
+  offence_code: string;
+  offence_label: string;
+  amount_cents: number;
+  decision: string;
+  decision_amount_cents: number | null;
+  decision_reasoning: string | null;
+  decided_at: string;
+}
+
+/**
+ * Recent decisions for precedent lookup by the officer agent. Optionally
+ * narrowed to one offence code so "what have we done with fire-route disputes"
+ * returns relevant precedent without dumping the full decision history.
+ */
+export async function listRecentDecisions(
+  db: D1Database,
+  opts: { offenceCode?: string; limit?: number } = {},
+): Promise<RecentDecisionRow[]> {
+  const limit = Math.max(1, Math.min(20, opts.limit ?? 10));
+  if (opts.offenceCode) {
+    const res = await db
+      .prepare(
+        `SELECT r.id AS review_id, r.ticket_id, t.offence_code, t.offence_label, t.amount_cents,
+                r.decision, r.decision_amount_cents, r.decision_reasoning, r.decided_at
+         FROM screening_reviews r
+         JOIN tickets t ON t.id = r.ticket_id
+         WHERE r.status = 'decided' AND t.offence_code = ?1
+         ORDER BY r.decided_at DESC
+         LIMIT ?2`,
+      )
+      .bind(opts.offenceCode, limit)
+      .all<RecentDecisionRow>();
+    return res.results ?? [];
+  }
+  const res = await db
+    .prepare(
+      `SELECT r.id AS review_id, r.ticket_id, t.offence_code, t.offence_label, t.amount_cents,
+              r.decision, r.decision_amount_cents, r.decision_reasoning, r.decided_at
+       FROM screening_reviews r
+       JOIN tickets t ON t.id = r.ticket_id
+       WHERE r.status = 'decided'
+       ORDER BY r.decided_at DESC
+       LIMIT ?1`,
+    )
+    .bind(limit)
+    .all<RecentDecisionRow>();
+  return res.results ?? [];
+}
+
+/**
+ * Officers think in notice numbers (BRP-…), not screening-review ids (rev_…).
+ * Returns the latest review (if any) for the given notice.
+ */
+export async function getReviewForTicket(
+  db: D1Database,
+  ticketId: string,
+): Promise<ScreeningReviewWithTicket | null> {
+  return await db
+    .prepare(
+      `SELECT r.*, t.offence_label, t.amount_cents, t.ward, t.location_text, t.offence_code, t.due_at
+       FROM screening_reviews r
+       JOIN tickets t ON t.id = r.ticket_id
+       WHERE r.ticket_id = ?1
+       ORDER BY r.created_at DESC
+       LIMIT 1`,
+    )
+    .bind(ticketId)
+    .first<ScreeningReviewWithTicket>();
+}
+
 export async function decideReview(
   db: D1Database,
   args: {

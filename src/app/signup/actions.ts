@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { buildCookie, COOKIE_NAME, createUser, signSession } from '~/lib/auth';
+import { buildCookie, COOKIE_NAME, createUser, signSession, type SessionUser } from '~/lib/auth';
 import { env } from '~/lib/runtime';
 
 export interface SignupActionState {
@@ -48,5 +48,11 @@ export async function signUpAction(
     maxAge: 60 * 60 * 24 * 7,
   });
 
-  redirect('/');
+  redirect(landingFor(user.role));
+}
+
+function landingFor(role: SessionUser['role']): string {
+  if (role === 'officer') return '/officer';
+  if (role === 'manager') return '/manager';
+  return '/my-notices';
 }

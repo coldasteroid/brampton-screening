@@ -57,5 +57,11 @@ export async function signInAction(
     maxAge: 60 * 60 * 24 * 7,
   });
 
-  redirect('/');
+  redirect(landingFor(user.role));
+}
+
+function landingFor(role: SessionUser['role']): string {
+  if (role === 'officer') return '/officer';
+  if (role === 'manager') return '/manager';
+  return '/my-notices';
 }

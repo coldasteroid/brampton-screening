@@ -9,7 +9,11 @@ const nextConfig: NextConfig = {
 };
 
 // Activates Cloudflare bindings inside `next dev` so server components / route
-// handlers can call env() without booting wrangler. No-op outside dev.
-initOpenNextCloudflareForDev();
+// handlers can call env() without booting wrangler. Guarded so it never runs
+// during `next build` (where it would otherwise try to open a remote-binding
+// preview session against the Cloudflare API and break the build).
+if (process.env.NODE_ENV === 'development') {
+  initOpenNextCloudflareForDev();
+}
 
 export default nextConfig;

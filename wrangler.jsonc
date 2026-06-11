@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "fairplan",
+  "account_id": "ae653819d9d3c3c739284efd39f8a944",
   "main": ".open-next/worker.js",
   "compatibility_date": "2025-05-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],

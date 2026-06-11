@@ -78,6 +78,13 @@ export default function Nav({ user, lang }: Props) {
           >
             Bylaws
           </Link>
+          <Link
+            href="/dashboard"
+            aria-current={isCurrent('/dashboard') ? 'page' : undefined}
+            className="whitespace-nowrap hover:text-ink transition-colors"
+          >
+            {t(lang, 'nav.dashboard')}
+          </Link>
           {(user?.role === 'officer' || user?.role === 'manager') && (
             <span
               className="inline-flex items-center gap-4 border-l border-line pl-4 text-fair-dark"
@@ -85,10 +92,24 @@ export default function Nav({ user, lang }: Props) {
             >
               <Link
                 href="/officer"
-                aria-current={isCurrent('/officer') ? 'page' : undefined}
+                aria-current={isCurrent('/officer') && pathname !== '/officer/agent' ? 'page' : undefined}
                 className="whitespace-nowrap hover:text-ink transition-colors"
               >
                 Queue
+              </Link>
+              <Link
+                href="/officer/agent"
+                aria-current={pathname === '/officer/agent' ? 'page' : undefined}
+                className="whitespace-nowrap hover:text-ink transition-colors"
+              >
+                Agent
+              </Link>
+              <Link
+                href="/officer/decisions"
+                aria-current={pathname === '/officer/decisions' ? 'page' : undefined}
+                className="whitespace-nowrap hover:text-ink transition-colors"
+              >
+                Decisions
               </Link>
               <Link
                 href="/hearings"
@@ -98,22 +119,13 @@ export default function Nav({ user, lang }: Props) {
                 Hearings
               </Link>
               {user?.role === 'manager' && (
-                <>
-                  <Link
-                    href="/manager"
-                    aria-current={isCurrent('/manager') ? 'page' : undefined}
-                    className="whitespace-nowrap hover:text-ink transition-colors"
-                  >
-                    Manager
-                  </Link>
-                  <Link
-                    href="/dashboard"
-                    aria-current={isCurrent('/dashboard') ? 'page' : undefined}
-                    className="whitespace-nowrap hover:text-ink transition-colors"
-                  >
-                    {t(lang, 'nav.dashboard')}
-                  </Link>
-                </>
+                <Link
+                  href="/manager"
+                  aria-current={isCurrent('/manager') ? 'page' : undefined}
+                  className="whitespace-nowrap hover:text-ink transition-colors"
+                >
+                  Manager
+                </Link>
               )}
             </span>
           )}
